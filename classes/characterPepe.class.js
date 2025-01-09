@@ -1,0 +1,3 @@
+class CharacterPepe extends movableObject {
+    
+}
