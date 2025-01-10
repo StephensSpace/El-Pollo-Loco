@@ -7,13 +7,18 @@ class World {
         new Chicken(),
     ];
     clouds = [
-        new Clouds(),
-        new Clouds(360, -10, undefined, undefined, 'assets/5_background/layers/4_clouds/2.png'),
-        new Clouds(120, 30, undefined, undefined, 'assets/5_background/layers/4_clouds/2.png')
+        new Clouds(0.3),
+        new Clouds(undefined, 360, -10, undefined, undefined, 'assets/5_background/layers/4_clouds/2.png'),
+        new Clouds(0.3, 300, -20, 260, 270),
+        new Clouds(0.3, 120, 30, undefined, undefined, 'assets/5_background/layers/4_clouds/2.png'),
+        new Clouds(undefined, 800, 40),
+        new Clouds(undefined, 720, 0, undefined, undefined, 'assets/5_background/layers/4_clouds/2.png')
     ];
     background = [
         new Air(),
-        new Background(),
+        new Background('assets/5_background/layers/3_third_layer/1.png'),
+        new Background('assets/5_background/layers/2_second_layer/1.png'),
+        new Background('assets/5_background/layers/1_first_layer/1.png'),
     ]
     canvas;
     ctx;
@@ -27,6 +32,10 @@ class World {
 
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.clouds.forEach(cloud => cloud.moveClouds());
+        this.enemies.forEach(enemy => enemy.moveChicken());
+
         this.addObjectsToWorld(this.background);
         this.addObjectsToWorld(this.clouds);
         this.addToMap(this.character);
