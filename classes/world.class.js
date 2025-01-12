@@ -1,6 +1,6 @@
 class World {
-
-    character = new CharacterPepe();
+    keyboard;
+    character = new CharacterPepe(keyboard);
     enemies = [
         new Chicken(),
         new Chicken(),
@@ -22,19 +22,27 @@ class World {
     ]
     canvas;
     ctx;
-
-    constructor(canvas) {
+    constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
         this.canvas = canvas;
+        this.keyboard = keyboard;
         this.draw();
+        this.setWorld();
 
+    }
+
+    setWorld() {
+        this.character.world = this;
     }
 
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.clouds.forEach(cloud => cloud.moveClouds());
-        this.enemies.forEach(enemy => enemy.moveChicken());
+        this.enemies.forEach(enemy => enemy.moveChicken() );
+        this.enemies.forEach(enemy => enemy.animate());
+        this.character.animate();
+        this.character.animateWalk();
 
         this.addObjectsToWorld(this.background);
         this.addObjectsToWorld(this.clouds);
