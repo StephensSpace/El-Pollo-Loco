@@ -14,7 +14,7 @@ class Clouds extends MovableObject {
         this.posX -= this.speed;
 
         if (this.posX + this.width < 0) {
-            this.posX = 720 + Math.random() * 10; // Zufälliger Offset nach rechts
+            this.posX = 2790 + Math.random() * 10; // Zufälliger Offset nach rechts
         }
     }
 } 

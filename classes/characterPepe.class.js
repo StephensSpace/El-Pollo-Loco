@@ -17,12 +17,13 @@ class CharacterPepe extends MovableObject {
         'assets/2_character_pepe/2_walk/W-26.png'
     ]
     world;
-    speed = 1;
+    speed = 20;
     currentImageIdle = 0;
     currentImageWalk = 0;
     lastFrameTime = 0;
     frameIntervalIdle = 230;
     frameIntervalWalk = 100;
+    
 
     constructor(keyboard) {
         super().loadImage('../assets/2_character_pepe/1_idle/idle/I-1.png');
@@ -44,12 +45,43 @@ class CharacterPepe extends MovableObject {
     }
 
     animateWalk() {
-        if (this.keyboard.rechts) { // Prüfe zuerst, ob die rechte Pfeiltaste gedrückt wird
-            const currentTime = Date.now();
-            this.posX += this.speed;
-            if (currentTime - this.lastFrameTime >= this.frameIntervalWalk) { // Überprüfe dann die Zeitbedingungen
-                this.playWalkAnimation(currentTime)
-            }
+        if (this.keyboard.rechts) {
+            this.walkRight();
+            this.checkWalkAnimationTime();
+        }
+        if (this.keyboard.links) {
+            this.walkLeft();
+            this.checkWalkAnimationTime();
+        }
+        if (this.posX >= 295) {
+            this.cameraX(295);
+        }
+    }
+
+    checkWalkAnimationTime() {
+        const currentTime = Date.now();
+        if (currentTime - this.lastFrameTime >= this.frameIntervalWalk) {
+            this.playWalkAnimation(currentTime)
+        }
+    }
+
+    walkRight() {
+        this.otherDirection = false;
+        const newPosition = this.posX += this.speed;
+        if (newPosition >= level1.levelEndX) {
+            this.posX = level1.levelEndX;
+        } else {
+            this.posX = newPosition;
+        }
+    }
+
+    walkLeft() {
+        this.otherDirection = true;
+        const newPosition = this.posX -= this.speed;
+        if (newPosition <= -10) {
+            this.posX = -10;
+        } else {
+            this.posX = newPosition;
         }
     }
 
@@ -66,7 +98,20 @@ class CharacterPepe extends MovableObject {
         let path = this.imagesWalk[i];
         this.img = this.images[path];
         this.currentImageWalk++;
-        this.lastFrameTime = currentTime; // Setze den Zeitstempel für den nächsten Frame
+        this.lastFrameTime = currentTime;
+    }
+
+    cameraX(versatz) {
+        setInterval(() => {
+            const newCameraX = -this.posX + versatz;
+            if (newCameraX > 0) {
+                this.world.cameraX = undefined;
+            } else if(newCameraX <= -2157){
+                this.world.cameraX = -2157;
+            } else {
+                this.world.cameraX = newCameraX; 
+            }
+        }, 5);
     }
 
     jump() {
