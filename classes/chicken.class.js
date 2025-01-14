@@ -15,6 +15,7 @@ class Chicken extends MovableObject {
         this.posY = posY;
         this.width = width;
         this.height = height;
+        
 
     }
 

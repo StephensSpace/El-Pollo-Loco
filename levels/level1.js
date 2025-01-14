@@ -37,7 +37,8 @@ const level1 = new Level(
     [
         new Chicken(),
         new Chicken(),
-        new Chicken()
-    ], 2756
-
+        new Chicken(),
+    ], 
+    2756,
+    new Endboss() 
 );

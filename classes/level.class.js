@@ -4,13 +4,15 @@ class Level {
     clouds= [];
     background;
     levelEndX;
+    endboss;
 
-    constructor(background, baseClouds, enemies, levelEndX) {
+    constructor(background, baseClouds, enemies, levelEndX, endboss) {
         this.background = background;
         this.baseClouds = baseClouds;
         this.enemies = enemies;
         this.generateClouds();
         this.levelEndX = levelEndX;
+        this.endboss = endboss
     }
 
     generateClouds() {

@@ -16,8 +16,9 @@ class CharacterPepe extends MovableObject {
         'assets/2_character_pepe/2_walk/W-25.png',
         'assets/2_character_pepe/2_walk/W-26.png'
     ]
+    soundWalking = new Audio('../audio/pepeRunning.wav')
     world;
-    speed = 20;
+    speed = 30;
     currentImageIdle = 0;
     currentImageWalk = 0;
     lastFrameTime = 0;
@@ -36,6 +37,7 @@ class CharacterPepe extends MovableObject {
     animate() {
         const currentTime = Date.now();
         if (!this.keyboard.rechts && !this.keyboard.links && !this.keyboard.jump) {
+            this.soundWalking.pause();
             setInterval(() => {
                 if (currentTime - this.lastFrameTime >= this.frameIntervalIdle) {
                     this.playIdleAnimation(currentTime)
@@ -48,10 +50,12 @@ class CharacterPepe extends MovableObject {
         if (this.keyboard.rechts) {
             this.walkRight();
             this.checkWalkAnimationTime();
+            this.soundWalking.play();
         }
         if (this.keyboard.links) {
             this.walkLeft();
             this.checkWalkAnimationTime();
+            this.soundWalking.play();
         }
         if (this.posX >= 295) {
             this.cameraX(295);

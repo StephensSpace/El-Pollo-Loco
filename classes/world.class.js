@@ -5,6 +5,7 @@ class World {
     canvas;
     ctx;
     cameraX;
+    sounds = new Sounds();
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
         this.canvas = canvas;
@@ -29,7 +30,12 @@ class World {
         this.addObjectsToWorld(this.level.background);
         this.addObjectsToWorld(this.level.clouds);
         this.addObjectsToWorld(this.level.enemies);
+        this.addToMap(this.level.endboss)
         this.addToMap(this.character);
+        if(this.character.posX >= 2500) {
+            this.level.endboss.animate(this.level.endboss.endbossAngry);
+            this.level.endboss.moveChicken();
+        }
         this.ctx.translate(-this.cameraX,0);
         let self = this;
         requestAnimationFrame(function () {
