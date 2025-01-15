@@ -4,6 +4,7 @@ class Chicken extends MovableObject {
         '../assets/3_enemies_chicken/chicken_normal/1_walk/2_w.png',
         '../assets/3_enemies_chicken/chicken_normal/1_walk/3_w.png'
     ]
+    images = {};
     currentImage = 0;
     lastFrameTime = 0;
     frameInterval = 200;
@@ -19,18 +20,6 @@ class Chicken extends MovableObject {
 
     }
 
-    animate() {
-        const currentTime = Date.now();
-        if (currentTime - this.lastFrameTime >= this.frameInterval) {
-            let path = this.imagesWalking[this.currentImage];
-            this.img = this.images[path]
-            this.currentImage++;
-            this.lastFrameTime = currentTime;
-            if (this.currentImage == this.imagesWalking.length) {
-                this.currentImage = 0;
-            }
-        }
-    }
 
     moveChicken() {
         this.posX -= 0.4;

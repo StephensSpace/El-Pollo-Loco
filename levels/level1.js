@@ -38,7 +38,26 @@ const level1 = new Level(
         new Chicken(),
         new Chicken(),
         new Chicken(),
+        new Chic(),
+        new Chic(),
+        new Chic(),
     ], 
     2756,
-    new Endboss() 
+    new Endboss(),
+    [
+        new Coins(100),
+        new Coins(130),
+        new Coins(160),
+    ],
+    [
+        new Salsa('../assets/6_salsa_bottle/1_salsa_bottle_on_ground.png', 100, 345),
+        new Salsa('../assets/6_salsa_bottle/2_salsa_bottle_on_ground.png', 150, 345),
+        new Salsa('../assets/6_salsa_bottle/1_salsa_bottle_on_ground.png', 200, 345),
+
+    ],
+    [
+        new Rocks('../assets/10_rocks/Rock1.png', 100, 200),
+        new Rocks('../assets/10_rocks/Rock2.png', 140, 200),
+        new Rocks('../assets/10_rocks/Rock1.png', 180, 200),
+    ]
 );

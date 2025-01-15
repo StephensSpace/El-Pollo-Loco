@@ -17,12 +17,13 @@ class CharacterPepe extends MovableObject {
         'assets/2_character_pepe/2_walk/W-26.png'
     ]
     soundWalking = new Audio('../audio/pepeRunning.wav')
+    images = {};
     world;
     speed = 30;
     currentImageIdle = 0;
     currentImageWalk = 0;
     lastFrameTime = 0;
-    frameIntervalIdle = 230;
+    frameIntervalIdle = 330;
     frameIntervalWalk = 100;
     
 

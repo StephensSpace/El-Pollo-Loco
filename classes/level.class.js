@@ -1,18 +1,24 @@
 class Level {
     enemies;
     baseClouds;
-    clouds= [];
+    clouds = [];
     background;
+    coins;
+    salsa;
+    rocks;
     levelEndX;
     endboss;
 
-    constructor(background, baseClouds, enemies, levelEndX, endboss) {
+    constructor(background, baseClouds, enemies, levelEndX, endboss, coins, salsa, rocks) {
         this.background = background;
         this.baseClouds = baseClouds;
         this.enemies = enemies;
         this.generateClouds();
         this.levelEndX = levelEndX;
-        this.endboss = endboss
+        this.endboss = endboss;
+        this.coins = coins;
+        this.salsa = salsa;
+        this.rocks = rocks;
     }
 
     generateClouds() {

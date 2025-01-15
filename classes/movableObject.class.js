@@ -23,4 +23,17 @@ class MovableObject {
     moveRight() {
         console.log('Moving Right');
     }
+
+    animate(array) {
+        const currentTime = Date.now();
+        if (currentTime - this.lastFrameTime >= this.frameInterval) {
+            let path = array[this.currentImage];
+            this.img = this.images[path]
+            this.currentImage++;
+            this.lastFrameTime = currentTime;
+            if (this.currentImage == array.length) {
+                this.currentImage = 0;
+            }
+        }
+    }
 }

@@ -45,9 +45,5 @@ class Endboss extends MovableObject {
     }
     moveChicken() {
         this.posX -= 1;
-
-        if (this.posX <= 170) {
-            this.posX = 720;
-        }
     }
 }

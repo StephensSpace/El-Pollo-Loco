@@ -24,12 +24,17 @@ class World {
         this.ctx.translate(this.cameraX,0);
         this.level.clouds.forEach(cloud => cloud.moveClouds());
         this.level.enemies.forEach(enemy => enemy.moveChicken() );
-        this.level.enemies.forEach(enemy => enemy.animate());
+        this.level.enemies.forEach(enemy => enemy.animate(enemy.imagesWalking));
+        this.level.coins.forEach(coin => coin.animate(coin.CoinImages));
+        this.level.salsa.forEach(salsa => salsa.animate(salsa.salsaImages));
         this.character.animate();
         this.character.animateWalk();
         this.addObjectsToWorld(this.level.background);
         this.addObjectsToWorld(this.level.clouds);
         this.addObjectsToWorld(this.level.enemies);
+        this.addObjectsToWorld(this.level.coins);
+        this.addObjectsToWorld(this.level.salsa);
+        this.addObjectsToWorld(this.level.rocks);
         this.addToMap(this.level.endboss)
         this.addToMap(this.character);
         if(this.character.posX >= 2500) {
