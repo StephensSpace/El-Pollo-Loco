@@ -16,7 +16,10 @@ class Salsa extends MovableObject {
         this.posY = posY;
         this.width = width;
         this.height = height;
+        this.offsetY = 15;
+        this.offsetX = 25;
+        this.offsetLength = 40;
+        this.offsetHeight = 25;
     }
-
 
 }

@@ -16,57 +16,153 @@ class CharacterPepe extends MovableObject {
         'assets/2_character_pepe/2_walk/W-25.png',
         'assets/2_character_pepe/2_walk/W-26.png'
     ]
+
+    imagesJump = [
+        '../assets/2_character_pepe/3_jump/J-31.png',
+        '../assets/2_character_pepe/3_jump/J-32.png',
+        '../assets/2_character_pepe/3_jump/J-33.png',
+        '../assets/2_character_pepe/3_jump/J-34.png',
+        '../assets/2_character_pepe/3_jump/J-35.png',
+        '../assets/2_character_pepe/3_jump/J-36.png',
+        '../assets/2_character_pepe/3_jump/J-37.png',
+        '../assets/2_character_pepe/3_jump/J-38.png',
+        '../assets/2_character_pepe/3_jump/J-39.png',
+    ];
+
+    imagesDeath = [
+        '../assets/2_character_pepe/5_dead/D-51.png',
+        '../assets/2_character_pepe/5_dead/D-52.png',
+        '../assets/2_character_pepe/5_dead/D-53.png',
+        '../assets/2_character_pepe/5_dead/D-54.png',
+        '../assets/2_character_pepe/5_dead/D-55.png',
+        '../assets/2_character_pepe/5_dead/D-56.png',
+        '../assets/2_character_pepe/5_dead/D-57.png',
+    ]
+
+    imagesHurt = [
+        '../assets/2_character_pepe/4_hurt/H-41.png',
+        '../assets/2_character_pepe/4_hurt/H-42.png',
+        '../assets/2_character_pepe/4_hurt/H-43.png',
+    ]
+
     soundWalking = new Audio('../audio/pepeRunning.wav')
     images = {};
     world;
-    speed = 30;
-    currentImageIdle = 0;
-    currentImageWalk = 0;
+    inAir = false;
+    speed = 3;
     lastFrameTime = 0;
+    frameIntervalDeath = 200;
     frameIntervalIdle = 330;
     frameIntervalWalk = 100;
-    
+    frameIntervalJump = 100;
+    frameIntervalHurt = 100;
+    alive = true;
+
 
     constructor(keyboard) {
         super().loadImage('../assets/2_character_pepe/1_idle/idle/I-1.png');
         this.loadImages(this.imagesIdle);
         this.loadImages(this.imagesWalk);
+        this.loadImages(this.imagesJump);
+        this.loadImages(this.imagesDeath);
+        this.loadImages(this.imagesHurt);
+        this.offsetY = 110;
+        this.offsetX = 30;
+        this.offsetLength = 75;
+        this.offsetHeight = 122;
         this.keyboard = keyboard
+        this.checkDeath();
 
     }
 
-    animate() {
+    animateIdle() {
         const currentTime = Date.now();
-        if (!this.keyboard.rechts && !this.keyboard.links && !this.keyboard.jump) {
+        if (this.alive) {
+            if (!this.keyboard.rechts && !this.keyboard.links && !this.keyboard.jump) {
+                this.soundWalking.pause();
+                setInterval(() => {
+                    if (currentTime - this.lastFrameTime >= this.frameIntervalIdle) {
+                        this.playAnimation(currentTime, this.imagesIdle)
+                    }
+                }, 200);
+            }
+        }
+    }
+
+    checkDeath() {
+        setInterval(() => {
+            if (this.energy <= 0 && this.alive) {
+                console.log('Tod')
+                this.animateDeath();
+                setInterval(() => {
+                    this.img = this.images[this.imagesDeath[1]]
+                }, 410);
+                this.alive = false;
+            }
+        }, 200);
+
+    }
+
+    animateDeath() {
+        const currentTime = Date.now();
+        this.soundWalking.pause();
+
+        if (currentTime - this.lastFrameTime >= this.frameIntervalDeath) {
+            this.playAnimation(currentTime, this.imagesDeath);
+        }
+
+    }
+
+    animateHurt() {
+        const currentTime = Date.now();
+        this.soundWalking.pause();
+        setInterval(() => {
+            if (currentTime - this.lastFrameTime >= this.frameIntervalHurt) {
+                this.playAnimation(currentTime, this.imagesHurt)
+            }
+        }, 200);
+    }
+
+
+    animateMovement() {
+        if (this.alive) {
+            if (this.keyboard.rechts) {
+                this.handleWalk(this.walkRight());
+            }
+            if (this.keyboard.links) {
+                this.handleWalk(this.walkLeft());
+            }
+            if (this.keyboard.jump && this.fall == false) {
+                this.jump();
+            }
+            if (this.posX >= 295) {
+                this.cameraX(295);
+            }
+        }
+    }
+
+    handleWalk(funct) {
+        funct;
+        this.checkWalkAnimationTime();
+        this.soundWalking.play();
+    }
+
+    animateJump() {
+        const currentTime = Date.now();
+        if (this.keyboard.jump || this.fall) {
             this.soundWalking.pause();
             setInterval(() => {
-                if (currentTime - this.lastFrameTime >= this.frameIntervalIdle) {
-                    this.playIdleAnimation(currentTime)
+                if (currentTime - this.lastFrameTime >= this.frameIntervalJump) {
+                    this.playAnimation(currentTime, this.imagesJump)
                 }
             }, 200);
-        }
-    }
-
-    animateWalk() {
-        if (this.keyboard.rechts) {
-            this.walkRight();
-            this.checkWalkAnimationTime();
-            this.soundWalking.play();
-        }
-        if (this.keyboard.links) {
-            this.walkLeft();
-            this.checkWalkAnimationTime();
-            this.soundWalking.play();
-        }
-        if (this.posX >= 295) {
-            this.cameraX(295);
         }
     }
 
     checkWalkAnimationTime() {
         const currentTime = Date.now();
         if (currentTime - this.lastFrameTime >= this.frameIntervalWalk) {
-            this.playWalkAnimation(currentTime)
+            this.playAnimation(currentTime, this.imagesWalk)
         }
     }
 
@@ -90,19 +186,11 @@ class CharacterPepe extends MovableObject {
         }
     }
 
-    playIdleAnimation(currentTime) {
-        let i = this.currentImageIdle % this.imagesIdle.length;
-        let path = this.imagesIdle[i];
+    playAnimation(currentTime, array) {
+        let i = this.currentImage % array.length;
+        let path = array[i];
         this.img = this.images[path];
-        this.currentImageIdle++;
-        this.lastFrameTime = currentTime;
-    }
-
-    playWalkAnimation(currentTime) {
-        let i = this.currentImageWalk % this.imagesWalk.length;
-        let path = this.imagesWalk[i];
-        this.img = this.images[path];
-        this.currentImageWalk++;
+        this.currentImage++;
         this.lastFrameTime = currentTime;
     }
 
@@ -111,15 +199,15 @@ class CharacterPepe extends MovableObject {
             const newCameraX = -this.posX + versatz;
             if (newCameraX > 0) {
                 this.world.cameraX = undefined;
-            } else if(newCameraX <= -2157){
+            } else if (newCameraX <= -2157) {
                 this.world.cameraX = -2157;
             } else {
-                this.world.cameraX = newCameraX; 
+                this.world.cameraX = newCameraX;
             }
         }, 5);
     }
 
     jump() {
-
+        this.speedY = 4.8;
     }
 }

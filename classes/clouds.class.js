@@ -7,7 +7,7 @@ class Clouds extends MovableObject {
         this.posY = posY;
         this.width = width;
         this.height = height;
-        this.speed = speed 
+        this.speed = speed
     }
 
     moveClouds() {

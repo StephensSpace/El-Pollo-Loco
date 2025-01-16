@@ -18,15 +18,12 @@ class Keyboard {
       switch (event.code) {
         case "ArrowLeft": // Linke Pfeiltaste
           this.links = true;
-          console.log('links');
           break;
         case "ArrowRight": // Rechte Pfeiltaste
           this.rechts = true;
-          console.log('rechts');
           break;
         case "Space": // Leertaste
           this.jump = true;
-          console.log('jump');
           break;
       }
     }

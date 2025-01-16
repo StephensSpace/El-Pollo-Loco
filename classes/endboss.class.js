@@ -29,6 +29,10 @@ class Endboss extends MovableObject {
         this.posY = posY;
         this.width = width;
         this.height = height;
+        this.offsetY = 55;
+        this.offsetX = 20;
+        this.offsetLength = 40;
+        this.offsetHeight = 70;
     }
 
     animate(array) {

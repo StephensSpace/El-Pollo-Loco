@@ -8,6 +8,7 @@ class Coins extends MovableObject {
     currentImage = 0;
     lastFrameTime = 0;
     frameInterval = 500;
+    
 
     constructor(posX, posY = 90, width = 90, height = 90) {
         super().loadImage('../assets/8_coin/coin_1.png');
@@ -16,6 +17,10 @@ class Coins extends MovableObject {
         this.posY = posY;
         this.width = width;
         this.height = height;
+        this.offsetY = 28;
+        this.offsetX = 29;
+        this.offsetLength = 59
+        this.offsetHeight = 59;
     }
 
 

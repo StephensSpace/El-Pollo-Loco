@@ -42,12 +42,13 @@ const level1 = new Level(
         new Chic(),
         new Chic(),
     ], 
-    2756,
+    2756, //level Endposition auf der x Achse
     new Endboss(),
     [
         new Coins(100),
         new Coins(130),
         new Coins(160),
+        
     ],
     [
         new Salsa('../assets/6_salsa_bottle/1_salsa_bottle_on_ground.png', 100, 345),
@@ -59,5 +60,7 @@ const level1 = new Level(
         new Rocks('../assets/10_rocks/Rock1.png', 100, 200),
         new Rocks('../assets/10_rocks/Rock2.png', 140, 200),
         new Rocks('../assets/10_rocks/Rock1.png', 180, 200),
+      
     ]
 );
+       

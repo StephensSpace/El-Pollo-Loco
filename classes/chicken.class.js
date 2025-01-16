@@ -5,7 +5,6 @@ class Chicken extends MovableObject {
         '../assets/3_enemies_chicken/chicken_normal/1_walk/3_w.png'
     ]
     images = {};
-    currentImage = 0;
     lastFrameTime = 0;
     frameInterval = 200;
 

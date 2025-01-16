@@ -13,6 +13,10 @@ class Rocks extends MovableObject {
         this.posY = posY;
         this.width = width;
         this.height = height;
+        this.offsetY = 2;
+        this.offsetX = 7;
+        this.offsetLength = 12;
+        this.offsetHeight = 5;
     }
 
 
