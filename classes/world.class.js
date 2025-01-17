@@ -24,8 +24,7 @@ class World {
                 if (this.character.isColliding(enemy) && this.character.energy > 0) {
                     collisionDetected = true;
                     this.character.hurt = true;
-                    this.character.energy -= 2;
-        
+                    this.character.energy -= 2;      
                     if (this.character.energy >= 10) {
                         this.character.animateHurt();
                     }
@@ -44,8 +43,6 @@ class World {
                 }
                 console.log(this.character.energy);
             }
-        
-            // Setze `hurt` zurück, wenn keine Kollision festgestellt wurde
             if (!collisionDetected) {
                 this.character.hurt = false;
             }
@@ -74,9 +71,15 @@ class World {
         this.level.clouds.forEach(cloud => cloud.moveClouds());
         this.level.enemies.forEach(enemy => enemy.moveChicken());
         this.level.enemies.forEach(enemy => enemy.animate(enemy.imagesWalking));
+        if (this.character.Bottles.length !== 0) {
+            this.character.Bottles.forEach(bottle => bottle.animate(bottle.bottleFlying));
+            this.character.Bottles.forEach(bottle => bottle.applyGravity(bottle.bottleFlying));
+        }
         this.level.coins.forEach(coin => coin.animate(coin.CoinImages));
         this.level.salsa.forEach(salsa => salsa.animate(salsa.salsaImages));
+        //this.checkBottle()
         this.checkCollisionsBlock();
+        this.character.startThrow();
         this.character.animateIdle();
         this.character.animateMovement();
         this.character.applyGravity();
@@ -99,6 +102,7 @@ class World {
 
     drawObjectsToWorld() {
         this.addObjectsToWorld(this.level.background);
+        this.addObjectsToWorld(this.character.Bottles);
         this.addObjectsToWorld(this.level.clouds);
         this.addObjectsToWorld(this.level.enemies);
         this.addObjectsToWorld(this.level.coins);

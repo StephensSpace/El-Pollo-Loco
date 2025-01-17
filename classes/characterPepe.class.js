@@ -49,7 +49,7 @@ class CharacterPepe extends MovableObject {
     images = {};
     world;
     inAir = false;
-    speed = 5;
+    speed = 3;
     lastFrameTime = 0;
     frameIntervalDeath = 200;
     frameIntervalIdle = 330;
@@ -57,6 +57,9 @@ class CharacterPepe extends MovableObject {
     frameIntervalJump = 100;
     frameIntervalHurt = 100;
     alive = true;
+    firstThrow = true;
+    lastThrowTime;
+    Bottles = []
 
 
     constructor(keyboard) {
@@ -144,9 +147,26 @@ class CharacterPepe extends MovableObject {
         }
     }
 
+    startThrow() {
+        const currentTime = Date.now();
+        if ((this.keyboard.throw && (currentTime - this.lastThrowTime >= 1000)) || (this.keyboard.throw && this.firstThrow)) {
+            if (!this.otherDirection) {
+                const directionRight = true;
+                this.Bottles.push(new BottleThrown(this, directionRight));
+                this.lastThrowTime = currentTime; // Setze den Zeitpunkt des Wurfs
+                this.firstThrow = false;
+            } else {
+                const directionRight = false;
+                this.Bottles.push(new BottleThrown(this, directionRight));
+                this.lastThrowTime = currentTime; // Setze den Zeitpunkt des Wurfs
+                this.firstThrow = false;
+            }
+        }
+    }
+
     handleWalk(funct) {
         funct;
-        if (!this.hurt  && !this.fall) {
+        if (!this.hurt && !this.fall) {
             this.checkWalkAnimationTime();
             this.soundWalking.play();
         }
@@ -185,7 +205,7 @@ class CharacterPepe extends MovableObject {
         this.otherDirection = true;
         const newPosition = this.posX -= this.speed;
         if (newPosition <= -10) {
-            this.posX =- 10;
+            this.posX = - 10;
         } else {
             this.posX = newPosition;
         }

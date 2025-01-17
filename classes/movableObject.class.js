@@ -63,6 +63,7 @@ class MovableObject {
             || this instanceof Rocks
             || this instanceof Endboss
             || this instanceof Coins
+            || this instanceof BottleThrown
         ) {
             return true
         }
@@ -150,7 +151,8 @@ class MovableObject {
     }
 
     // Funktionen zur Korrektur
-    handleLeftCollision() {;
+    handleLeftCollision() {
+        ;
         this.speed = 0;
         this.posX += 0.0001;
     }
@@ -172,17 +174,21 @@ class MovableObject {
     }
 
     applyGravity() {
-        if (this.posY < 180 || this.speedY > 0) {
+        if (this instanceof BottleThrown) {
             this.posY -= this.speedY;
-            this.speedY -= this.acceleration;    
+            this.speedY -= this.acceleration;
+        } else if (this.posY < 180 || this.speedY > 0) {
+            this.posY -= this.speedY;
+            this.speedY -= this.acceleration;
             this.fall = true;
-        } else if(this.speedY == 0) {
+        } else if (this.speedY == 0) {
             this.fallOnBlock = true;
         } else {
             this.posY = 180;
             this.fall = false;
             this.collisionY = false;
         }
+
     }
 
     loadImages(Array) {
@@ -207,11 +213,11 @@ class MovableObject {
     }
 
     moveChicken() {
-        if(!this.otherDirection){ 
+        if (!this.otherDirection) {
             this.posX -= 0.4;
         } else {
             this.posX += 0.4;
         }
-    
+
     }
 }
