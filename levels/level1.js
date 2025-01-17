@@ -57,9 +57,9 @@ const level1 = new Level(
 
     ],
     [
-        new Rocks('../assets/10_rocks/Rock1.png', 100, 200),
-        new Rocks('../assets/10_rocks/Rock2.png', 140, 200),
-        new Rocks('../assets/10_rocks/Rock1.png', 180, 200),
+        new Rocks('../assets/10_rocks/Rock1.png', 180, 300),
+        new Rocks('../assets/10_rocks/Rock2.png', 180, 340),
+        new Rocks('../assets/10_rocks/Rock1.png', 180, 380),
       
     ]
 );

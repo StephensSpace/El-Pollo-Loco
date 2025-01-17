@@ -20,11 +20,5 @@ class Chicken extends MovableObject {
     }
 
 
-    moveChicken() {
-        this.posX -= 0.4;
-
-        if (this.posX <= 170) {
-            this.posX = 720;
-        }
-    }
+   
 }

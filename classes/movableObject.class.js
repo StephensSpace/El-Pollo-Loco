@@ -6,6 +6,7 @@ class MovableObject {
     width = 150;
     height = 260;
     otherDirection = false;
+    speed = 3;
     speedY = 0;
     acceleration = 0.1;
     currentImage = 0;
@@ -15,6 +16,24 @@ class MovableObject {
     offsetLength = 0;
     offsetHeight = 0;
     energy = 100;
+    hurt = false;
+    collisionY = false;
+
+    get charRight() {
+        return this.posX + this.offsetX + this.width - this.offsetLength;
+    }
+
+    get charLeft() {
+        return this.posX + this.offsetX;
+    }
+
+    get charTop() {
+        return this.posY + this.offsetY;
+    }
+
+    get charBottom() {
+        return this.posY + this.offsetY + this.height - this.offsetHeight;
+    }
 
     loadImage(path) {
         this.img = new Image();
@@ -28,26 +47,26 @@ class MovableObject {
     drawHitbox(ctx) {
         if (this.checkInstance()) {
             ctx.beginPath();
-            ctx.lineWidth = "2";
-            ctx.strokeStyle = "blue";
+            ctx.lineWidth = "0";
+            ctx.strokeStyle = "";
             ctx.rect(this.posX + this.offsetX, this.posY + this.offsetY, this.width - this.offsetLength, this.height - this.offsetHeight);
             ctx.stroke();
         }
     }
 
     checkInstance() {
-        if(
-            this instanceof CharacterPepe 
-            || this instanceof Chicken 
-            || this instanceof Chic 
-            || this instanceof Salsa 
-            || this instanceof Rocks 
-            || this instanceof Endboss 
+        if (
+            this instanceof CharacterPepe
+            || this instanceof Chicken
+            || this instanceof Chic
+            || this instanceof Salsa
+            || this instanceof Rocks
+            || this instanceof Endboss
             || this instanceof Coins
         ) {
             return true
-        } 
-            return false
+        }
+        return false
     }
 
     isColliding(obj) {
@@ -59,14 +78,110 @@ class MovableObject {
         );
     }
 
+    isCollidingBlock(block) {
+        if (this.checkCollisionBlock(block)) {
+            this.handleBlockCollision(block);
+        }
+    }
+
+    // Ausgelagerte Funktion zur Kollisionsprüfung
+    checkCollisionBlock(block) {
+        const blockRight = block.posX + block.width;
+        const blockLeft = block.posX;
+        const blockTop = block.posY;
+        const blockBottom = block.posY + block.height;
+
+        return (
+            this.charRight > blockLeft &&
+            this.charLeft < blockRight &&
+            this.charBottom > blockTop &&
+            this.charTop < blockBottom
+        );
+    }
+
+    handleBlockCollision(block) {
+        const blockRight = block.posX + block.width;
+        const blockLeft = block.posX;
+        const blockTop = block.posY;
+        const blockBottom = block.posY + block.height;
+        const overlapRight = this.charRight - blockLeft;
+        const overlapLeft = blockRight - this.charLeft;
+        const overlapTop = this.charBottom - blockTop;
+        const overlapBottom = blockBottom - this.charTop;
+        this.compareOverlapBlockCollision(overlapRight, overlapLeft, overlapTop, overlapBottom, block);
+
+    }
+
+    compareOverlapBlockCollision(overlapRight, overlapLeft, overlapTop, overlapBottom, block) {
+        const minOverlap = Math.min(overlapRight, overlapLeft, overlapTop, overlapBottom);
+        if (minOverlap === overlapRight) {
+            if (this instanceof Chicken || this instanceof Chic) {
+                this.handleEnemyCollisionRight();
+            } else {
+                this.handleRightCollision();
+            }
+        } else if (minOverlap === overlapLeft) {
+            if (this instanceof Chicken || this instanceof Chic) {
+                this.handleEnemyCollisionLeft();
+            } else {
+                this.handleLeftCollision();
+            }
+        } else if (minOverlap === overlapTop) {
+            if (this instanceof Chicken || this instanceof Chic) {
+                this.handleEnemyCollision(block);
+            } else {
+                this.handleTopCollision(block);
+            }
+        } else if (minOverlap === overlapBottom) {
+            if (this instanceof Chicken || this instanceof Chic) {
+                this.handleEnemyCollision(block);
+            } else {
+                this.handleBottomCollision(block);
+            }
+        }
+    }
+
+    handleEnemyCollisionLeft() {
+        this.otherDirection = true;
+    }
+
+    handleEnemyCollisionRight() {
+        this.otherDirection = false;
+    }
+
+    // Funktionen zur Korrektur
+    handleLeftCollision() {;
+        this.speed = 0;
+        this.posX += 0.0001;
+    }
+
+    handleRightCollision() {
+        this.speed = 0;
+        this.posX -= 0.0001;
+    }
+
+    handleTopCollision(block) {
+        this.posY = block.posY - (this.height - this.offsetHeight) - this.offsetY;
+        this.speedY = 0;
+        this.collisionY = true;
+        this.fall = false;
+    }
+
+    handleBottomCollision(block) {
+        this.posY = block.posY + block.height - this.offsetY;
+    }
+
     applyGravity() {
         if (this.posY < 180 || this.speedY > 0) {
             this.posY -= this.speedY;
-            this.speedY -= this.acceleration;
+            this.speedY -= this.acceleration;    
             this.fall = true;
+        } else if(this.speedY == 0) {
+            this.fallOnBlock = true;
         } else {
             this.posY = 180;
             this.fall = false;
+            this.collisionY = false;
         }
     }
 
@@ -76,10 +191,6 @@ class MovableObject {
             img.src = path;
             this.images[path] = img;
         });
-    }
-
-    moveRight() {
-        console.log('Moving Right');
     }
 
     animate(array) {
@@ -93,5 +204,14 @@ class MovableObject {
                 this.currentImage = 0;
             }
         }
+    }
+
+    moveChicken() {
+        if(!this.otherDirection){ 
+            this.posX -= 0.4;
+        } else {
+            this.posX += 0.4;
+        }
+    
     }
 }

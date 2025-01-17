@@ -49,7 +49,7 @@ class CharacterPepe extends MovableObject {
     images = {};
     world;
     inAir = false;
-    speed = 3;
+    speed = 5;
     lastFrameTime = 0;
     frameIntervalDeath = 200;
     frameIntervalIdle = 330;
@@ -67,8 +67,8 @@ class CharacterPepe extends MovableObject {
         this.loadImages(this.imagesDeath);
         this.loadImages(this.imagesHurt);
         this.offsetY = 110;
-        this.offsetX = 30;
-        this.offsetLength = 75;
+        this.offsetX = 50;
+        this.offsetLength = 100;
         this.offsetHeight = 122;
         this.keyboard = keyboard
         this.checkDeath();
@@ -77,7 +77,7 @@ class CharacterPepe extends MovableObject {
 
     animateIdle() {
         const currentTime = Date.now();
-        if (this.alive) {
+        if (this.alive && !this.hurt && !this.fall) {
             if (!this.keyboard.rechts && !this.keyboard.links && !this.keyboard.jump) {
                 this.soundWalking.pause();
                 setInterval(() => {
@@ -128,11 +128,14 @@ class CharacterPepe extends MovableObject {
         if (this.alive) {
             if (this.keyboard.rechts) {
                 this.handleWalk(this.walkRight());
+                this.speed = 3;
             }
             if (this.keyboard.links) {
                 this.handleWalk(this.walkLeft());
+                this.speed = 3;
             }
-            if (this.keyboard.jump && this.fall == false) {
+            if ((this.keyboard.jump && !this.fall) || (this.collisionY && this.keyboard.jump && this.fallOnBlock)) {
+                this.collisionY = false;
                 this.jump();
             }
             if (this.posX >= 295) {
@@ -143,13 +146,15 @@ class CharacterPepe extends MovableObject {
 
     handleWalk(funct) {
         funct;
-        this.checkWalkAnimationTime();
-        this.soundWalking.play();
+        if (!this.hurt  && !this.fall) {
+            this.checkWalkAnimationTime();
+            this.soundWalking.play();
+        }
     }
 
     animateJump() {
         const currentTime = Date.now();
-        if (this.keyboard.jump || this.fall) {
+        if ((this.keyboard.jump || this.fall) && !this.collisionY) {
             this.soundWalking.pause();
             setInterval(() => {
                 if (currentTime - this.lastFrameTime >= this.frameIntervalJump) {
@@ -180,7 +185,7 @@ class CharacterPepe extends MovableObject {
         this.otherDirection = true;
         const newPosition = this.posX -= this.speed;
         if (newPosition <= -10) {
-            this.posX = -10;
+            this.posX =- 10;
         } else {
             this.posX = newPosition;
         }
@@ -208,6 +213,6 @@ class CharacterPepe extends MovableObject {
     }
 
     jump() {
-        this.speedY = 4.8;
+        this.speedY = 5.8;
     }
 }

@@ -11,25 +11,59 @@ class World {
         this.canvas = canvas;
         this.keyboard = keyboard;
         this.draw();
+        this.checkCollisionsEnemy();
         this.setWorld();
-        this.checkCollisions();
-
     }
 
-    checkCollisions() {
+    checkCollisionsEnemy() {
         setInterval(() => {
+            let collisionDetected = false;
+        
+            // Überprüfe Kollision mit Gegnern
             this.level.enemies.forEach(enemy => {
-                if (this.character.isColliding(enemy) && !this.character.energy <= 0) {
-                    this.character.energy -= 5;
+                if (this.character.isColliding(enemy) && this.character.energy > 0) {
+                    collisionDetected = true;
+                    this.character.hurt = true;
+                    this.character.energy -= 2;
+        
                     if (this.character.energy >= 10) {
                         this.character.animateHurt();
                     }
-                    console.log(this.character.energy)
+                    console.log(this.character.energy);
                 }
             });
+        
+            // Überprüfe Kollision mit dem Endboss
+            if (this.character.isColliding(this.level.endboss)) {
+                collisionDetected = true;
+                this.character.hurt = true;
+                this.character.energy -= 2;
+        
+                if (this.character.energy >= 10) {
+                    this.character.animateHurt();
+                }
+                console.log(this.character.energy);
+            }
+        
+            // Setze `hurt` zurück, wenn keine Kollision festgestellt wurde
+            if (!collisionDetected) {
+                this.character.hurt = false;
+            }
         }, 200);
     }
 
+    checkCollisionsBlock() {
+        setInterval(() => {
+            this.level.rocks.forEach(rock => {
+                this.character.isCollidingBlock(rock);
+    
+                // Iteriere durch alle Feinde und prüfe die Kollision für jeden
+                this.level.enemies.forEach(enemy => {
+                    enemy.isCollidingBlock(rock);
+                });
+            });
+        }, 1000 / 60); // 60 FPS
+    }
     setWorld() {
         this.character.world = this;
     }
@@ -42,10 +76,13 @@ class World {
         this.level.enemies.forEach(enemy => enemy.animate(enemy.imagesWalking));
         this.level.coins.forEach(coin => coin.animate(coin.CoinImages));
         this.level.salsa.forEach(salsa => salsa.animate(salsa.salsaImages));
+        this.checkCollisionsBlock();
         this.character.animateIdle();
         this.character.animateMovement();
         this.character.applyGravity();
         this.character.animateJump();
+        
+        
 
         this.drawObjectsToWorld();
 
