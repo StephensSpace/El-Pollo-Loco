@@ -7,6 +7,7 @@ class Chicken extends MovableObject {
     images = {};
     lastFrameTime = 0;
     frameInterval = 200;
+    dead = false;
 
     constructor(posX = 200 + Math.random() * 500, posY = 335, width = 100, height = 100) {
         super().loadImage('../assets/3_enemies_chicken/chicken_normal/1_walk/1_w.png')

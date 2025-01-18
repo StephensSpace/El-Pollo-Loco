@@ -24,9 +24,11 @@ class BottleThrown extends MovableObject {
     height = 90
     offsetY = 15;
     offsetX = 25;
-    offsetLength = 40;
-    offsetHeight = 25;
+    offsetLength = 80;
+    offsetHeight = 75;
     directionRight;
+    collisionDetected = false;
+    animationStarted = false;
 
     constructor(character, directionRight) {
         super().loadImage('../assets/6_salsa_bottle/bottle_rotation/1_bottle_rotation.png');

@@ -8,6 +8,7 @@ class Chic extends MovableObject {
     currentImage = 0;
     lastFrameTime = 0;
     frameInterval = 200;
+    dead = false;
 
     constructor(posX = 200 + Math.random() * 500, posY = 380, width = 50, height = 50) {
         super().loadImage('../assets/3_enemies_chicken/chicken_small/1_walk/1_w.png')
