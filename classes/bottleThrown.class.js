@@ -18,14 +18,14 @@ class BottleThrown extends MovableObject {
     character;
     lastFrameTime = 0;
     frameInterval = 100;
-    speed = 1.3;
-    acceleration = 0.005;
+    speed = 2.5;
+    acceleration = 0.07;
     width = 90
     height = 90
     offsetY = 15;
     offsetX = 25;
-    offsetLength = 80;
-    offsetHeight = 75;
+    offsetLength = 70;
+    offsetHeight = 65;
     directionRight;
     collisionDetected = false;
     animationStarted = false;
@@ -39,7 +39,7 @@ class BottleThrown extends MovableObject {
         this.bottleFly();
         this.posX = this.character.posX + this.character.offsetX +
             this.character.width - this.character.offsetLength
-        this.posY = this.character.posY + this.offsetY
+        this.posY = this.character.posY + this.offsetY +50;
     }
 
     bottleFly() {

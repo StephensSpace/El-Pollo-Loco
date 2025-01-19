@@ -35,12 +35,12 @@ const level1 = new Level(
         { speed: undefined, x: 720, y: 0, src: 'assets/5_background/layers/4_clouds/2.png' },
     ],
     [
-        new Chicken(),
-        new Chicken(),
-        new Chicken(),
-        new Chic(),
-        new Chic(),
-        new Chic(),
+        new Chicken(400),
+        new Chicken(480),
+        new Chicken(540),
+        new Chic(425),
+        new Chic(525),
+        new Chic(540),
     ], 
     2756, //level Endposition auf der x Achse
     new Endboss(),

@@ -35,6 +35,19 @@ class MovableObject {
         return this.posY + this.offsetY + this.height - this.offsetHeight;
     }
 
+    checkDeath() {
+        setInterval(() => {
+            if (this.dead && !this.deadAnimationDone) {
+                if (this instanceof Chicken) { 
+                    this.loadImage('../assets/3_enemies_chicken/chicken_normal/2_dead/dead.png') 
+                } else if(this instanceof Chic) {
+                    this.loadImage('../assets/3_enemies_chicken/chicken_small/2_dead/dead.png')
+                }
+                this.deadAnimationDone = true;
+            }
+        }, 50);
+    }
+
     loadImage(path) {
         this.img = new Image();
         this.img.src = path
@@ -48,7 +61,7 @@ class MovableObject {
         if (this.checkInstance()) {
             ctx.beginPath();
             ctx.lineWidth = "0";
-            ctx.strokeStyle = "";
+            ctx.strokeStyle = "transparent";
             ctx.rect(this.posX + this.offsetX, this.posY + this.offsetY, this.width - this.offsetLength, this.height - this.offsetHeight);
             ctx.stroke();
         }
@@ -79,9 +92,9 @@ class MovableObject {
         );
     }
 
-    isCollidingBlock(block) {
+    isCollidingBlock(block, bottle) {
         if (this.checkCollisionBlock(block)) {
-            this.handleBlockCollision(block);
+            this.handleBlockCollision(block, bottle);
         }
     }
 
@@ -100,7 +113,7 @@ class MovableObject {
         );
     }
 
-    handleBlockCollision(block) {
+    handleBlockCollision(block, bottle) {
         const blockRight = block.posX + block.width;
         const blockLeft = block.posX;
         const blockTop = block.posY;
@@ -109,35 +122,43 @@ class MovableObject {
         const overlapLeft = blockRight - this.charLeft;
         const overlapTop = this.charBottom - blockTop;
         const overlapBottom = blockBottom - this.charTop;
-        this.compareOverlapBlockCollision(overlapRight, overlapLeft, overlapTop, overlapBottom, block);
+        this.compareOverlapBlockCollision(overlapRight, overlapLeft, overlapTop, overlapBottom, block, bottle);
 
     }
 
-    compareOverlapBlockCollision(overlapRight, overlapLeft, overlapTop, overlapBottom, block) {
+    compareOverlapBlockCollision(overlapRight, overlapLeft, overlapTop, overlapBottom, block, bottle) {
         const minOverlap = Math.min(overlapRight, overlapLeft, overlapTop, overlapBottom);
         if (minOverlap === overlapRight) {
             if (this instanceof Chicken || this instanceof Chic) {
                 this.handleEnemyCollisionRight();
-            } else {
+            } else if (this instanceof CharacterPepe) {
                 this.handleRightCollision();
+            } else if (this instanceof BottleThrown) {
+                this.handleCollisionBottle(bottle);
             }
         } else if (minOverlap === overlapLeft) {
             if (this instanceof Chicken || this instanceof Chic) {
                 this.handleEnemyCollisionLeft();
-            } else {
+            } else if (this instanceof CharacterPepe) {
                 this.handleLeftCollision();
+            } else if (this instanceof BottleThrown) {
+                this.handleCollisionBottle(bottle);
             }
         } else if (minOverlap === overlapTop) {
             if (this instanceof Chicken || this instanceof Chic) {
                 this.handleEnemyCollision(block);
-            } else {
+            } else if (this instanceof CharacterPepe) {
                 this.handleTopCollision(block);
+            } else if (this instanceof BottleThrown) {
+                this.handleCollisionBottle(bottle);
             }
         } else if (minOverlap === overlapBottom) {
             if (this instanceof Chicken || this instanceof Chic) {
                 this.handleEnemyCollision(block);
-            } else {
+            } else if (this instanceof CharacterPepe) {
                 this.handleBottomCollision(block);
+            } else if (this instanceof BottleThrown) {
+                this.handleCollisionBottle(bottle);
             }
         }
     }
@@ -152,14 +173,13 @@ class MovableObject {
 
     // Funktionen zur Korrektur
     handleLeftCollision() {
-        ;
         this.speed = 0;
-        this.posX += 0.0001;
+        this.posX += 0.0008;
     }
 
     handleRightCollision() {
         this.speed = 0;
-        this.posX -= 0.0001;
+        this.posX -= 0.0008;
     }
 
     handleTopCollision(block) {
@@ -171,6 +191,16 @@ class MovableObject {
 
     handleBottomCollision(block) {
         this.posY = block.posY + block.height - this.offsetY;
+    }
+
+    handleCollisionBottle(bottle) {
+        if (!bottle.collisionDetected) {
+            bottle.character.world.startAnimationSequence(
+                bottle,
+                bottle.bottleSplash,
+                () => bottle.character.world.handleAnimationEnd(bottle) // Ausgelagerte Funktion aufrufen
+            );
+        }
     }
 
     applyGravity() {

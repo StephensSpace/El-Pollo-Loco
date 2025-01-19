@@ -13,6 +13,7 @@ class World {
         this.draw();
         this.checkCollisionsEnemy();
         this.checkBottleCollision();
+        this.deleteDeadEnemies();
         this.setWorld();
     }
 
@@ -20,7 +21,7 @@ class World {
         setInterval(() => {
             let collisionDetected = false;
             this.level.enemies.forEach(enemy => {
-                if (this.character.isColliding(enemy) && this.character.energy > 0) {
+                if (this.character.isColliding(enemy) && this.character.energy > 0 && !this.enemy.dead) {
                     collisionDetected = true;
                     this.character.hurt = true;
                     this.character.energy -= 2;
@@ -52,16 +53,28 @@ class World {
                 if (!bottle.collisionDetected) {
                     this.level.enemies.forEach(enemy => {
                         if (enemy.isColliding(bottle)) {
-                            this.startAnimationSequence(bottle, bottle.bottleSplash, () => {
-                                bottle.collisionDetected = true;
-                            });
-                            enemy.dead = true; // Gegner als "tot" markieren
-                            bottle.speed = 0;
+                            setTimeout(() => {
+                                this.startAnimationSequence(
+                                    bottle,
+                                    bottle.bottleSplash,
+                                    () => this.handleAnimationEnd(bottle) // Ausgelagerte Funktion aufrufen
+                                );
+                                enemy.dead = true; // Gegner als "tot" markieren
+                            }, 10); // Verzögerung vor Start der Animation
                         }
                     });
+                    if (bottle.posY >= 290) {
+                        setTimeout(() => {
+                            this.startAnimationSequence(
+                                bottle,
+                                bottle.bottleSplash,
+                                () => this.handleAnimationEnd(bottle) // Ausgelagerte Funktion aufrufen
+                            );
+                        }, 10);
+                    }
                 }
             });
-        }, 500);
+        }, 300);
     }
 
     startAnimationSequence(bottle, animationArray, onComplete) {
@@ -69,27 +82,49 @@ class World {
         const interval = setInterval(() => {
             bottle.animate(animationArray); // Animation ausführen
             frameCount++;
-
             if (frameCount >= 6) { // Animation beendet
                 clearInterval(interval); // Intervall stoppen
                 onComplete(); // Kollision "abschließen"
-                console.log('Animation abgeschlossen'); // Debug-Info
+                setTimeout(() => {
+                    this.character.Bottles = this.character.Bottles.filter(b => b !== bottle);
+                }, 1200);
             }
-        }, 50); // Timing pro Frame
+        }, 20); // Timing pro Frame
+    }
+
+    handleAnimationEnd(bottle) {
+        bottle.collisionDetected = true;
+        bottle.speed = 0.002;
+        bottle.speedY = 0;
+        
     }
 
     checkCollisionsBlock() {
         setInterval(() => {
             this.level.rocks.forEach(rock => {
                 this.character.isCollidingBlock(rock);
-
-                // Iteriere durch alle Feinde und prüfe die Kollision für jeden
+                this.character.Bottles.forEach(bottle => {
+                    bottle.isCollidingBlock(rock, bottle);
+                });
                 this.level.enemies.forEach(enemy => {
                     enemy.isCollidingBlock(rock);
                 });
             });
         }, 1000 / 60); // 60 FPS
     }
+
+    deleteDeadEnemies() {
+        setInterval(() => {
+            this.level.enemies.forEach(enemy => {
+                if (enemy.dead) {
+                    setTimeout(() => {
+                        this.level.enemies = this.level.enemies.filter(e => e !== enemy);
+                    }, 1200); 
+                }
+            });
+        }, 100);
+    }
+
     setWorld() {
         this.character.world = this;
     }
@@ -98,8 +133,7 @@ class World {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.translate(this.cameraX, 0);
         this.level.clouds.forEach(cloud => cloud.moveClouds());
-        this.level.enemies.forEach(enemy => enemy.moveChicken());
-        this.level.enemies.forEach(enemy => enemy.animate(enemy.imagesWalking));
+        this.handleChickenMovement();
         this.checkBottle();
         this.level.coins.forEach(coin => coin.animate(coin.CoinImages));
         this.level.salsa.forEach(salsa => salsa.animate(salsa.salsaImages));
@@ -118,6 +152,15 @@ class World {
         let self = this;
         requestAnimationFrame(function () {
             self.draw();
+        });
+    }
+
+    handleChickenMovement() {
+        this.level.enemies.forEach(enemy => {
+            if (!enemy.dead) {
+                enemy.moveChicken();
+                enemy.animate(enemy.imagesWalking);
+            }
         });
     }
 

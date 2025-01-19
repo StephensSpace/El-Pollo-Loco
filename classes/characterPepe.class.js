@@ -95,7 +95,6 @@ class CharacterPepe extends MovableObject {
     checkDeath() {
         setInterval(() => {
             if (this.energy <= 0 && this.alive) {
-                console.log('Tod')
                 this.animateDeath();
                 setInterval(() => {
                     this.img = this.images[this.imagesDeath[1]]
