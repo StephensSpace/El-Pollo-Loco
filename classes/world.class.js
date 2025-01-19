@@ -185,12 +185,12 @@ class World {
 
     drawObjectsToWorld() {
         this.addObjectsToWorld(this.level.background);
-        this.addObjectsToWorld(this.character.Bottles);
         this.addObjectsToWorld(this.level.clouds);
         this.addObjectsToWorld(this.level.enemies);
         this.addObjectsToWorld(this.level.coins);
-        this.addObjectsToWorld(this.level.salsa);
         this.addObjectsToWorld(this.level.rocks);
+        this.addObjectsToWorld(this.level.salsa);
+        this.addObjectsToWorld(this.character.Bottles);
         this.addToMap(this.level.endboss)
         this.addToMap(this.character);
 
