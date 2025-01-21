@@ -18,8 +18,8 @@ class BottleThrown extends MovableObject {
     character;
     lastFrameTime = 0;
     frameInterval = 100;
-    speed = 2.5;
-    acceleration = 0.07;
+    speed;
+    speedY;
     width = 90
     height = 90
     offsetY = 15;
@@ -29,31 +29,28 @@ class BottleThrown extends MovableObject {
     directionRight;
     collisionDetected = false;
     animationStarted = false;
+    flyInterval;
+    gravityInterval;
+    removeTimeout;
 
-    constructor(character, directionRight) {
+    constructor(character, directionRight, collisionDetected) {
         super().loadImage('../assets/6_salsa_bottle/bottle_rotation/1_bottle_rotation.png');
         this.loadImages(this.bottleFlying);
         this.loadImages(this.bottleSplash);
         this.character = character;
         this.directionRight = directionRight
-        this.bottleFly();
-        this.posX = this.character.posX + this.character.offsetX +
-            this.character.width - this.character.offsetLength
-        this.posY = this.character.posY + this.offsetY +50;
+        this.posX = this.character.posX + this.character.offsetX;
+        this.posY = this.character.posY + this.offsetY +70;
+        this.speed = 3;
+        this.speedY = 0;
+        this.collisionDetected = collisionDetected;
     }
 
     bottleFly() {
         if (this.directionRight) {
-            setInterval(() => {
-                this.posX += this.speed;
-            }, 1000 / 60);
+            this.posX += this.speed;  // Bewegung nach rechts
         } else {
-            setInterval(() => {
-                this.posX -= this.speed;
-            }, 1000 / 60);
+            this.posX -= this.speed;  // Bewegung nach links
         }
-
     }
-
-
 }

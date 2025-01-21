@@ -58,7 +58,7 @@ class CharacterPepe extends MovableObject {
     frameIntervalHurt = 100;
     alive = true;
     firstThrow = true;
-    lastThrowTime;
+    lastThrowTime = 0;
     Bottles = []
 
 
@@ -70,8 +70,8 @@ class CharacterPepe extends MovableObject {
         this.loadImages(this.imagesDeath);
         this.loadImages(this.imagesHurt);
         this.offsetY = 110;
-        this.offsetX = 50;
-        this.offsetLength = 100;
+        this.offsetX = 57;
+        this.offsetLength = 120;
         this.offsetHeight = 122;
         this.keyboard = keyboard
         this.checkDeath();
@@ -148,17 +148,15 @@ class CharacterPepe extends MovableObject {
 
     startThrow() {
         const currentTime = Date.now();
-        if ((this.keyboard.throw && (currentTime - this.lastThrowTime >= 1000)) || (this.keyboard.throw && this.firstThrow)) {
+        if (this.keyboard.throw && (currentTime - this.lastThrowTime >= 1000) && this.alive) {
             if (!this.otherDirection) {
                 const directionRight = true;
-                this.Bottles.push(new BottleThrown(this, directionRight));
+                this.Bottles.push(new BottleThrown(this, directionRight, false));
                 this.lastThrowTime = currentTime; // Setze den Zeitpunkt des Wurfs
-                this.firstThrow = false;
             } else {
                 const directionRight = false;
-                this.Bottles.push(new BottleThrown(this, directionRight));
+                this.Bottles.push(new BottleThrown(this, directionRight, false));
                 this.lastThrowTime = currentTime; // Setze den Zeitpunkt des Wurfs
-                this.firstThrow = false;
             }
         }
     }
@@ -228,10 +226,11 @@ class CharacterPepe extends MovableObject {
             } else {
                 this.world.cameraX = newCameraX;
             }
-        }, 5);
+        }, 100);
     }
 
     jump() {
         this.speedY = 5.8;
+
     }
 }

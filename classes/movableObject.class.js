@@ -1,14 +1,14 @@
 class MovableObject {
-    posX = 50;
-    posY = -80;
+    posX = 900;
+    posY = -110;
     img;
     images = {};
     width = 150;
-    height = 260;
+    height = 220;
     otherDirection = false;
     speed = 3;
     speedY = 0;
-    acceleration = 0.1;
+    acceleration = 0.12;
     currentImage = 0;
     fall = false;
     offsetY = 0;
@@ -38,9 +38,9 @@ class MovableObject {
     checkDeath() {
         setInterval(() => {
             if (this.dead && !this.deadAnimationDone) {
-                if (this instanceof Chicken) { 
-                    this.loadImage('../assets/3_enemies_chicken/chicken_normal/2_dead/dead.png') 
-                } else if(this instanceof Chic) {
+                if (this instanceof Chicken) {
+                    this.loadImage('../assets/3_enemies_chicken/chicken_normal/2_dead/dead.png')
+                } else if (this instanceof Chic) {
                     this.loadImage('../assets/3_enemies_chicken/chicken_small/2_dead/dead.png')
                 }
                 this.deadAnimationDone = true;
@@ -77,6 +77,7 @@ class MovableObject {
             || this instanceof Endboss
             || this instanceof Coins
             || this instanceof BottleThrown
+            || this instanceof Bird
         ) {
             return true
         }
@@ -100,14 +101,14 @@ class MovableObject {
 
     // Ausgelagerte Funktion zur Kollisionsprüfung
     checkCollisionBlock(block) {
-        const blockRight = block.posX + block.width;
-        const blockLeft = block.posX;
-        const blockTop = block.posY;
-        const blockBottom = block.posY + block.height;
+        const blockRight = block.posX + block.offsetX + block.width - block.offsetLength;
+        const blockLeft = block.posX + block.offsetX;
+        const blockTop = block.posY + block.offsetY;
+        const blockBottom = block.posY + block.offsetY + block.height - block.offsetHeight;
 
         return (
             this.charRight > blockLeft &&
-            this.charLeft < blockRight &&
+            this.charLeft  < blockRight  &&
             this.charBottom > blockTop &&
             this.charTop < blockBottom
         );
@@ -129,32 +130,32 @@ class MovableObject {
     compareOverlapBlockCollision(overlapRight, overlapLeft, overlapTop, overlapBottom, block, bottle) {
         const minOverlap = Math.min(overlapRight, overlapLeft, overlapTop, overlapBottom);
         if (minOverlap === overlapRight) {
-            if (this instanceof Chicken || this instanceof Chic) {
+            if (this instanceof Chicken || this instanceof Chic || this instanceof Bird) {
                 this.handleEnemyCollisionRight();
             } else if (this instanceof CharacterPepe) {
-                this.handleRightCollision();
+                this.handleRightCollision(block);
             } else if (this instanceof BottleThrown) {
                 this.handleCollisionBottle(bottle);
             }
         } else if (minOverlap === overlapLeft) {
-            if (this instanceof Chicken || this instanceof Chic) {
+            if (this instanceof Chicken || this instanceof Chic || this instanceof Bird) {
                 this.handleEnemyCollisionLeft();
             } else if (this instanceof CharacterPepe) {
-                this.handleLeftCollision();
+                this.handleLeftCollision(block);
             } else if (this instanceof BottleThrown) {
                 this.handleCollisionBottle(bottle);
             }
         } else if (minOverlap === overlapTop) {
-            if (this instanceof Chicken || this instanceof Chic) {
-                this.handleEnemyCollision(block);
+            if (this instanceof Chicken || this instanceof Chic || this instanceof Bird) {
+                this.handleTopCollision(block);
             } else if (this instanceof CharacterPepe) {
                 this.handleTopCollision(block);
             } else if (this instanceof BottleThrown) {
                 this.handleCollisionBottle(bottle);
             }
         } else if (minOverlap === overlapBottom) {
-            if (this instanceof Chicken || this instanceof Chic) {
-                this.handleEnemyCollision(block);
+            if (this instanceof Chicken || this instanceof Chic || this instanceof Bird) {
+                this.handleBottomCollision(block);
             } else if (this instanceof CharacterPepe) {
                 this.handleBottomCollision(block);
             } else if (this instanceof BottleThrown) {
@@ -173,24 +174,24 @@ class MovableObject {
 
     // Funktionen zur Korrektur
     handleLeftCollision() {
-        this.speed = 0;
-        this.posX += 0.0008;
+        this.posX += 0.08;
+        this.speed = 0;  // Stoppe die Bewegung   
     }
-
-    handleRightCollision() {
-        this.speed = 0;
-        this.posX -= 0.0008;
+    
+    handleRightCollision(block) {
+        this.posX = block.posX + block.offsetX - this.width + this.offsetLength - this.offsetX;
+        this.speed = 0;  // Stoppe die Bewegung
     }
 
     handleTopCollision(block) {
-        this.posY = block.posY - (this.height - this.offsetHeight) - this.offsetY;
+        this.posY = block.posY + block.offsetY - (this.height - this.offsetHeight) - this.offsetY;
         this.speedY = 0;
         this.collisionY = true;
         this.fall = false;
     }
 
     handleBottomCollision(block) {
-        this.posY = block.posY + block.height - this.offsetY;
+        this.posY = block.posY - block.offsetY + block.height - this.offsetY;
     }
 
     handleCollisionBottle(bottle) {
@@ -204,21 +205,26 @@ class MovableObject {
     }
 
     applyGravity() {
-        if (this instanceof BottleThrown) {
-            this.posY -= this.speedY;
-            this.speedY -= this.acceleration;
-        } else if (this.posY < 180 || this.speedY > 0) {
+        if (this.posY < 200 || this.speedY > 0) {
             this.posY -= this.speedY;
             this.speedY -= this.acceleration;
             this.fall = true;
         } else if (this.speedY == 0) {
             this.fallOnBlock = true;
         } else {
-            this.posY = 180;
+            this.posY = 200;
             this.fall = false;
             this.collisionY = false;
         }
+    }
 
+    applyGravityToBottle() {
+        if (!this.collisionDetected) {
+            this.posY -= this.speedY;
+            this.speedY -= this.acceleration;
+        } else {
+            this.speedY = 0;  // Geschwindigkeit bei Kollision stoppen
+        }
     }
 
     loadImages(Array) {
@@ -244,9 +250,9 @@ class MovableObject {
 
     moveChicken() {
         if (!this.otherDirection) {
-            this.posX -= 0.4;
+            this.posX -= this.speed;
         } else {
-            this.posX += 0.4;
+            this.posX += this.speed;
         }
 
     }

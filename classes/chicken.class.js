@@ -8,10 +8,11 @@ class Chicken extends MovableObject {
     lastFrameTime = 0;
     frameInterval = 200;
     dead = false;
-    offsetY = 20;
+    offsetY = 10;
     offsetX = 0;
-    offsetLength = 40;
+    offsetLength = 30;
     offsetHeight = 20;
+    speed = 0.4;
     deadAnimationDone = false;
 
 

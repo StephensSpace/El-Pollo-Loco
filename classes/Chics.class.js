@@ -10,9 +10,10 @@ class Chic extends MovableObject {
     frameInterval = 200;
     dead = false;
     deadAnimationDone = false;
-    offsetY = 15;
+    offsetY = 5;
     offsetX = 5;
     offsetLength = 10;
+    speed = 0.4;
     offsetHeight = 10;
 
     constructor(posX = 200 + Math.random() * 500, posY = 380, width = 40, height = 40) {

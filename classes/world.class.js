@@ -11,17 +11,14 @@ class World {
         this.canvas = canvas;
         this.keyboard = keyboard;
         this.draw();
-        this.checkCollisionsEnemy();
-        this.checkBottleCollision();
         this.deleteDeadEnemies();
         this.setWorld();
     }
 
     checkCollisionsEnemy() {
-        setInterval(() => {
             let collisionDetected = false;
             this.level.enemies.forEach(enemy => {
-                if (this.character.isColliding(enemy) && this.character.energy > 0 && !this.enemy.dead) {
+                if (this.character.isColliding(enemy) && this.character.energy > 0 && !enemy.dead) {
                     collisionDetected = true;
                     this.character.hurt = true;
                     this.character.energy -= 2;
@@ -44,37 +41,6 @@ class World {
             if (!collisionDetected) {
                 this.character.hurt = false;
             }
-        }, 50);
-    }
-
-    checkBottleCollision() {
-        setInterval(() => {
-            this.character.Bottles.forEach(bottle => {
-                if (!bottle.collisionDetected) {
-                    this.level.enemies.forEach(enemy => {
-                        if (enemy.isColliding(bottle)) {
-                            setTimeout(() => {
-                                this.startAnimationSequence(
-                                    bottle,
-                                    bottle.bottleSplash,
-                                    () => this.handleAnimationEnd(bottle) // Ausgelagerte Funktion aufrufen
-                                );
-                                enemy.dead = true; // Gegner als "tot" markieren
-                            }, 10); // Verzögerung vor Start der Animation
-                        }
-                    });
-                    if (bottle.posY >= 290) {
-                        setTimeout(() => {
-                            this.startAnimationSequence(
-                                bottle,
-                                bottle.bottleSplash,
-                                () => this.handleAnimationEnd(bottle) // Ausgelagerte Funktion aufrufen
-                            );
-                        }, 10);
-                    }
-                }
-            });
-        }, 300);
     }
 
     startAnimationSequence(bottle, animationArray, onComplete) {
@@ -82,35 +48,57 @@ class World {
         const interval = setInterval(() => {
             bottle.animate(animationArray); // Animation ausführen
             frameCount++;
+            bottle.speed = 0.00002;
+            bottle.speedY = 0;
             if (frameCount >= 6) { // Animation beendet
                 clearInterval(interval); // Intervall stoppen
                 onComplete(); // Kollision "abschließen"
                 setTimeout(() => {
                     this.character.Bottles = this.character.Bottles.filter(b => b !== bottle);
-                }, 1200);
+                }, 500);
             }
         }, 20); // Timing pro Frame
     }
 
+    checkBottleCollision() {
+            this.character.Bottles.forEach(bottle => {
+                if (!bottle.collisionDetected) {
+                    this.level.enemies.forEach(enemy => {
+                        if (enemy.isColliding(bottle)) {
+                            setTimeout(() => {
+                                bottle.collisionDetected = true;
+                                enemy.dead = true; 
+                            }, 150);
+                        }
+                    });
+                    if (bottle.posY >= 360) {
+                        bottle.collisionDetected = true;
+                    }
+                }
+            });
+    }
+
+
+    
+
     handleAnimationEnd(bottle) {
         bottle.collisionDetected = true;
-        bottle.speed = 0.002;
-        bottle.speedY = 0;
-        
+
     }
 
     checkCollisionsBlock() {
-        setInterval(() => {
             this.level.rocks.forEach(rock => {
                 this.character.isCollidingBlock(rock);
-                this.character.Bottles.forEach(bottle => {
-                    bottle.isCollidingBlock(rock, bottle);
-                });
+
+                if (this.character.Bottles.length > 0) {
+                    this.character.Bottles.forEach(bottle => {
+                        bottle.isCollidingBlock(rock, bottle);
+                    });
+                }
                 this.level.enemies.forEach(enemy => {
                     enemy.isCollidingBlock(rock);
                 });
             });
-        }, 1000 / 60); // 60 FPS
     }
 
     deleteDeadEnemies() {
@@ -119,7 +107,7 @@ class World {
                 if (enemy.dead) {
                     setTimeout(() => {
                         this.level.enemies = this.level.enemies.filter(e => e !== enemy);
-                    }, 1200); 
+                    }, 1200);
                 }
             });
         }, 100);
@@ -137,6 +125,7 @@ class World {
         this.checkBottle();
         this.level.coins.forEach(coin => coin.animate(coin.CoinImages));
         this.level.salsa.forEach(salsa => salsa.animate(salsa.salsaImages));
+        this.checkCollisionsEnemy();
         this.checkCollisionsBlock();
         this.character.startThrow();
         this.character.animateIdle();
@@ -158,25 +147,36 @@ class World {
     handleChickenMovement() {
         this.level.enemies.forEach(enemy => {
             if (!enemy.dead) {
-                enemy.moveChicken();
-                enemy.animate(enemy.imagesWalking);
+                if (enemy instanceof Chicken || enemy instanceof Chic) {
+                    enemy.moveChicken();
+                    enemy.applyGravity();
+                    enemy.animate(enemy.imagesWalking);
+                }
+                if (enemy instanceof Bird) {
+                    enemy.moveChicken();
+                    enemy.animate(enemy.imagesWalking);
+                }
             }
+
         });
     }
 
     checkBottle() {
+        this.checkBottleCollision();
         if (this.character.Bottles.length !== 0) {
             this.character.Bottles.forEach(bottle => {
-                if (!bottle.collisionDetected) { // Nur für Flaschen, die noch nicht kollidiert sind
+                if (!bottle.collisionDetected) {
+                    bottle.applyGravityToBottle();
+                    bottle.bottleFly();
                     bottle.animate(bottle.bottleFlying);
-                    bottle.applyGravity(bottle.bottleFlying);
                 } else {
-                    // Die Animation soll nur einmal abgespielt werden, daher hier die eigene Logik für die einmalige Animation
+            
                     if (!bottle.animationStarted) {
                         this.startAnimationSequence(bottle, bottle.bottleSplash, () => {
-                            bottle.collisionDetected = true; // Kollision-Status nach der Animation setzen
+                            bottle.collisionDetected = true;
+                            bottle.animationStarted = true;
                         });
-                        bottle.animationStarted = true; // Flag setzen, um Animation nur einmal zu starten
+                         // Flag setzen, um Animation nur einmal zu starten
                     }
                 }
             });
@@ -186,17 +186,20 @@ class World {
     drawObjectsToWorld() {
         this.addObjectsToWorld(this.level.background);
         this.addObjectsToWorld(this.level.clouds);
-        this.addObjectsToWorld(this.level.enemies);
-        this.addObjectsToWorld(this.level.coins);
-        this.addObjectsToWorld(this.level.rocks);
         this.addObjectsToWorld(this.level.salsa);
-        this.addObjectsToWorld(this.character.Bottles);
+        this.addObjectsToWorld(this.level.coins);
+        this.addObjectsToWorld(this.level.enemies);
+        this.addObjectsToWorld(this.level.rocks);
+        if (this.character.Bottles.length > 0) {
+            this.addObjectsToWorld(this.character.Bottles)
+        };
         this.addToMap(this.level.endboss)
         this.addToMap(this.character);
 
     }
 
     addObjectsToWorld(obj) {
+        if(obj.length > 0)
         obj.forEach(o => {
             this.addToMap(o)
         });
