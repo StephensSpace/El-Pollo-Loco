@@ -59,6 +59,8 @@ class CharacterPepe extends MovableObject {
     alive = true;
     firstThrow = true;
     lastThrowTime = 0;
+    coinCounter = 0;
+    bottleCounter = 10;
     Bottles = []
 
 
@@ -98,7 +100,7 @@ class CharacterPepe extends MovableObject {
                 this.animateDeath();
                 setInterval(() => {
                     this.img = this.images[this.imagesDeath[1]]
-                }, 410);
+                }, 210);
                 this.alive = false;
             }
         }, 200);
@@ -118,15 +120,16 @@ class CharacterPepe extends MovableObject {
     animateHurt() {
         const currentTime = Date.now();
         this.soundWalking.pause();
-        setInterval(() => {
             if (currentTime - this.lastFrameTime >= this.frameIntervalHurt) {
                 this.playAnimation(currentTime, this.imagesHurt)
             }
-        }, 200);
     }
 
 
     animateMovement() {
+        if(!this.fall) {
+            this.speedY = 0;
+        } 
         if (this.alive) {
             if (this.keyboard.rechts) {
                 this.handleWalk(this.walkRight());
@@ -136,7 +139,7 @@ class CharacterPepe extends MovableObject {
                 this.handleWalk(this.walkLeft());
                 this.speed = 3;
             }
-            if ((this.keyboard.jump && !this.fall) || (this.collisionY && this.keyboard.jump && this.fallOnBlock)) {
+            if ((this.keyboard.jump && !this.fall) || (this.collisionY && this.keyboard.jump && this.fallOnBlock && this.speedY == 0)) {
                 this.collisionY = false;
                 this.jump();
             }
@@ -171,13 +174,11 @@ class CharacterPepe extends MovableObject {
 
     animateJump() {
         const currentTime = Date.now();
-        if ((this.keyboard.jump || this.fall) && !this.collisionY) {
+        if ((this.keyboard.jump || this.fall) && !this.collisionY && this.alive) {
             this.soundWalking.pause();
-            setInterval(() => {
                 if (currentTime - this.lastFrameTime >= this.frameIntervalJump) {
                     this.playAnimation(currentTime, this.imagesJump)
                 }
-            }, 200);
         }
     }
 

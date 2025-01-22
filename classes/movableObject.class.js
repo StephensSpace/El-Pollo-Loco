@@ -1,10 +1,6 @@
-class MovableObject {
-    posX = 900;
-    posY = -110;
-    img;
-    images = {};
-    width = 150;
-    height = 220;
+class MovableObject extends DrawAbleObject{
+    
+      
     otherDirection = false;
     speed = 3;
     speedY = 0;
@@ -46,42 +42,6 @@ class MovableObject {
                 this.deadAnimationDone = true;
             }
         }, 50);
-    }
-
-    loadImage(path) {
-        this.img = new Image();
-        this.img.src = path
-    }
-
-    draw(ctx) {
-        ctx.drawImage(this.img, this.posX, this.posY, this.width, this.height)
-    }
-
-    drawHitbox(ctx) {
-        if (this.checkInstance()) {
-            ctx.beginPath();
-            ctx.lineWidth = "0";
-            ctx.strokeStyle = "transparent";
-            ctx.rect(this.posX + this.offsetX, this.posY + this.offsetY, this.width - this.offsetLength, this.height - this.offsetHeight);
-            ctx.stroke();
-        }
-    }
-
-    checkInstance() {
-        if (
-            this instanceof CharacterPepe
-            || this instanceof Chicken
-            || this instanceof Chic
-            || this instanceof Salsa
-            || this instanceof Rocks
-            || this instanceof Endboss
-            || this instanceof Coins
-            || this instanceof BottleThrown
-            || this instanceof Bird
-        ) {
-            return true
-        }
-        return false
     }
 
     isColliding(obj) {
@@ -216,6 +176,7 @@ class MovableObject {
             this.fall = false;
             this.collisionY = false;
         }
+
     }
 
     applyGravityToBottle() {
@@ -227,13 +188,7 @@ class MovableObject {
         }
     }
 
-    loadImages(Array) {
-        Array.forEach(path => {
-            let img = new Image();
-            img.src = path;
-            this.images[path] = img;
-        });
-    }
+    
 
     animate(array) {
         const currentTime = Date.now();

@@ -5,7 +5,8 @@ let world;
 function init() {
     canvas = document.getElementById('canvas');
     keyboard = new Keyboard();
-    world = new World(canvas, keyboard); 
+    let statusbar = new Statusbar();
+    world = new World(canvas, keyboard, statusbar); 
     console.log(world.character, world.enemies);
     
 

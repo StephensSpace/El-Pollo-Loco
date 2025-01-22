@@ -8,6 +8,7 @@ class Salsa extends MovableObject {
     currentImage = 0;
     lastFrameTime = 0;
     frameInterval = 1000;
+    collisionDetected = false;
 
     constructor(path, posX, posY = 90, width = 90, height = 90) {
         super().loadImage(path);

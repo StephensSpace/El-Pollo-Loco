@@ -8,6 +8,7 @@ class Coins extends MovableObject {
     currentImage = 0;
     lastFrameTime = 0;
     frameInterval = 500;
+    collisionDetected = false;
     
 
     constructor(posX, posY = 90, width = 90, height = 90) {
