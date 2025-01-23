@@ -23,10 +23,10 @@ class Keyboard {
       case "ArrowRight": // Rechte Pfeiltaste
         this.rechts = true;
         break;
-      case "Space": // Leertaste
+      case "ArrowUp": // Leertaste
         this.jump = true;
         break;
-      case "Enter": // Rechte Strg-Taste losgelassen
+      case "Space": // Rechte Strg-Taste losgelassen
         this.throw = true;
         break;
     }
@@ -41,10 +41,10 @@ class Keyboard {
       case "ArrowRight":
         this.rechts = false;
         break;
-      case "Space":
+      case "ArrowUp":
         this.jump = false;
         break;
-      case "Enter": // Rechte Strg-Taste losgelassen
+      case "Space": // Rechte Strg-Taste losgelassen
         this.throw = false;
         break;
     }

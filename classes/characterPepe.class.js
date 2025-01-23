@@ -151,17 +151,26 @@ class CharacterPepe extends MovableObject {
 
     startThrow() {
         const currentTime = Date.now();
-        if (this.keyboard.throw && (currentTime - this.lastThrowTime >= 1000) && this.alive) {
+        if (this.canThrowBottle(currentTime)) {
             if (!this.otherDirection) {
                 const directionRight = true;
                 this.Bottles.push(new BottleThrown(this, directionRight, false));
-                this.lastThrowTime = currentTime; // Setze den Zeitpunkt des Wurfs
+                this.lastThrowTime = currentTime;
+                this.bottleCounter --;
             } else {
                 const directionRight = false;
                 this.Bottles.push(new BottleThrown(this, directionRight, false));
-                this.lastThrowTime = currentTime; // Setze den Zeitpunkt des Wurfs
+                this.lastThrowTime = currentTime; 
+                this.bottleCounter --;
             }
         }
+    }
+
+    canThrowBottle(currentTime) {
+        return this.keyboard.throw &&
+               (currentTime - this.lastThrowTime >= 1000) &&
+               this.alive &&
+               this.bottleCounter > 0;
     }
 
     handleWalk(funct) {

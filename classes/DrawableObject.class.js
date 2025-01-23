@@ -7,6 +7,7 @@ class DrawAbleObject {
     height = 220;
     percentage = 100;
     images = {};
+    running = true;
 
     loadImage(path) {
         this.img = new Image();
@@ -31,7 +32,7 @@ class DrawAbleObject {
         if (this.checkInstance()) {
             ctx.beginPath();
             ctx.lineWidth = "0";
-            ctx.strokeStyle = "";
+            ctx.strokeStyle = "transparent";
             ctx.rect(this.posX + this.offsetX, this.posY + this.offsetY, this.width - this.offsetLength, this.height - this.offsetHeight);
             ctx.stroke();
         }
@@ -52,5 +53,9 @@ class DrawAbleObject {
             return true
         }
         return false
+    }
+
+    stop() {
+        this.running = false;  // Setze running auf false, um draw zu stoppen
     }
 }
