@@ -22,7 +22,7 @@ class Startscreen extends DrawAbleObject {
         
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.drawImage(this.img, this.posX, this.posY, this.width, this.height);
-        this.menu.drawMenu();
+        this.menu.drawStartMenu();
 
         requestAnimationFrame(() => this.draw());
     }

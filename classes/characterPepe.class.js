@@ -84,7 +84,7 @@ class CharacterPepe extends MovableObject {
         const currentTime = Date.now();
         if (this.alive && !this.hurt && !this.fall) {
             if (!this.keyboard.rechts && !this.keyboard.links && !this.keyboard.jump) {
-                this.soundWalking.pause();
+                if (SoundOn) { this.soundWalking.pause(); }
                 setInterval(() => {
                     if (currentTime - this.lastFrameTime >= this.frameIntervalIdle) {
                         this.playAnimation(currentTime, this.imagesIdle)
@@ -120,16 +120,16 @@ class CharacterPepe extends MovableObject {
     animateHurt() {
         const currentTime = Date.now();
         this.soundWalking.pause();
-            if (currentTime - this.lastFrameTime >= this.frameIntervalHurt) {
-                this.playAnimation(currentTime, this.imagesHurt)
-            }
+        if (currentTime - this.lastFrameTime >= this.frameIntervalHurt) {
+            this.playAnimation(currentTime, this.imagesHurt)
+        }
     }
 
 
     animateMovement() {
-        if(!this.fall) {
+        if (!this.fall) {
             this.speedY = 0;
-        } 
+        }
         if (this.alive) {
             if (this.keyboard.rechts) {
                 this.handleWalk(this.walkRight());
@@ -156,28 +156,28 @@ class CharacterPepe extends MovableObject {
                 const directionRight = true;
                 this.Bottles.push(new BottleThrown(this, directionRight, false));
                 this.lastThrowTime = currentTime;
-                this.bottleCounter --;
+                this.bottleCounter--;
             } else {
                 const directionRight = false;
                 this.Bottles.push(new BottleThrown(this, directionRight, false));
-                this.lastThrowTime = currentTime; 
-                this.bottleCounter --;
+                this.lastThrowTime = currentTime;
+                this.bottleCounter--;
             }
         }
     }
 
     canThrowBottle(currentTime) {
         return this.keyboard.throw &&
-               (currentTime - this.lastThrowTime >= 1000) &&
-               this.alive &&
-               this.bottleCounter > 0;
+            (currentTime - this.lastThrowTime >= 1000) &&
+            this.alive &&
+            this.bottleCounter > 0;
     }
 
     handleWalk(funct) {
         funct;
         if (!this.hurt && !this.fall) {
             this.checkWalkAnimationTime();
-            this.soundWalking.play();
+            if (SoundOn) { this.soundWalking.play(); }
         }
     }
 
@@ -185,9 +185,9 @@ class CharacterPepe extends MovableObject {
         const currentTime = Date.now();
         if ((this.keyboard.jump || this.fall) && !this.collisionY && this.alive) {
             this.soundWalking.pause();
-                if (currentTime - this.lastFrameTime >= this.frameIntervalJump) {
-                    this.playAnimation(currentTime, this.imagesJump)
-                }
+            if (currentTime - this.lastFrameTime >= this.frameIntervalJump) {
+                this.playAnimation(currentTime, this.imagesJump)
+            }
         }
     }
 

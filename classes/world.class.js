@@ -1,30 +1,44 @@
 class World {
-    keyboard;
+    keyboard; // Ohne das Keyboard als Parameter
     statusbar;
-    character = new CharacterPepe(keyboard);
-    level = level1;
+    character;
+    level;
     canvas;
     ctx;
     cameraX;
+    pauseMenu = new PauseMenu();
     sounds = new Sounds();
-    healthbar = new Statusbar('./assets/7_statusbars/1_statusbar/2_statusbar_health/green/100.png',
-        40, 420, 200, 50,
-        this.character);
-    salsabar = new Statusbar('../assets/7_statusbars/1_statusbar/3_statusbar_bottle/blue/20.png',
-        260, 420, 200, 50,
-        this.character);
-    coinbar = new Statusbar('../assets/7_statusbars/1_statusbar/1_statusbar_coin/orange/0.png',
-        480, 420, 200, 50,
-        this.character);
-    constructor(canvas, keyboard, statusbar) {
-        this.ctx = canvas.getContext('2d');
-        this.statusbar = statusbar;
-        this.canvas = canvas;
-        this.keyboard = keyboard;
-        this.draw();
-        this.deleteDeadEnemies();
-        this.setWorld();
+    healthbar;
+    salsabar;
+    selectedButtonIndex = 0;
+    coinbar;
+    running = true;
 
+    constructor(canvas, statusbar) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');  // Hier wird der ctx gesetzt
+        this.keyboard = new Keyboard(this.ctx, this);
+        this.statusbar = statusbar;
+        this.level = level1;  // Achte darauf, dass level1 korrekt definiert ist
+        this.character = new CharacterPepe(this.keyboard);  // Hier keyboard übergeben
+
+        // Initialisiere die Statusleisten
+        this.healthbar = new Statusbar(
+            './assets/7_statusbars/1_statusbar/2_statusbar_health/green/100.png',
+            40, 420, 200, 50, this.character
+        );
+        this.salsabar = new Statusbar(
+            '../assets/7_statusbars/1_statusbar/3_statusbar_bottle/blue/20.png',
+            260, 420, 200, 50, this.character
+        );
+        this.coinbar = new Statusbar(
+            '../assets/7_statusbars/1_statusbar/1_statusbar_coin/orange/0.png',
+            480, 420, 200, 50, this.character
+        );
+
+        this.selectedButtonIndex = 0;
+        this.draw();
+        this.setWorld();
     }
 
     checkCollisionsEnemy() {
@@ -135,7 +149,6 @@ class World {
     }
 
     deleteDeadEnemies() {
-        setInterval(() => {
             this.level.enemies.forEach(enemy => {
                 if (enemy.dead) {
                     setTimeout(() => {
@@ -143,7 +156,6 @@ class World {
                     }, 1200);
                 }
             });
-        }, 100);
     }
 
     setWorld() {
@@ -183,27 +195,35 @@ class World {
     }
 
     draw() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.translate(this.cameraX, 0);
-        this.level.clouds.forEach(cloud => cloud.moveClouds());
-        this.chickenMovement();
-        this.characterMovements();
-        this.checkAllCollisions();
-        this.coinbar.setCoin();
-        this.healthbar.setHealth();
-        this.salsabar.setSalsa();
-        this.level.coins.forEach(coin => coin.animate(coin.CoinImages));
-        this.level.salsa.forEach(salsa => salsa.animate(salsa.salsaImages));
-        this.drawObjectsToWorld();
-        if (this.character.posX >= 2500) {
-            this.level.endboss.animate(this.level.endboss.endbossAngry);
-            this.level.endboss.moveChicken();
+        if (this.running) {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.translate(this.cameraX, 0);
+            if (!this.keyboard.pause) {
+                this.level.clouds.forEach(cloud => cloud.moveClouds());
+                this.chickenMovement();
+                this.characterMovements();
+                this.checkAllCollisions();
+                this.deleteDeadEnemies();
+                this.coinbar.setCoin();
+                this.healthbar.setHealth();
+                this.salsabar.setSalsa();
+                this.level.coins.forEach(coin => coin.animate(coin.CoinImages));
+                this.level.salsa.forEach(salsa => salsa.animate(salsa.salsaImages));
+                this.drawObjectsToWorld();
+            } else {
+                this.drawObjectsToWorld();
+            }
+
+            if (this.character.posX >= 2500) {
+                this.level.endboss.animate(this.level.endboss.endbossAngry);
+                this.level.endboss.moveChicken();
+            }
+            this.ctx.translate(-this.cameraX, 0);
+            let self = this;
+            requestAnimationFrame(function () {
+                self.draw();
+            });
         }
-        this.ctx.translate(-this.cameraX, 0);
-        let self = this;
-        requestAnimationFrame(function () {
-            self.draw();
-        });
     }
 
     checkBottle() {
@@ -228,6 +248,32 @@ class World {
         }
     }
 
+    addPauseMenu() {
+        this.addToMap(this.pauseMenu);
+        this.updateSoundBtnText();
+        this.pauseMenu.startBtn.draw(this.ctx)
+        this.pauseMenu.soundBtn.draw(this.ctx);
+        this.pauseMenu.controllsBtn.draw(this.ctx);
+        this.ctx.font = '28px Comic Sans MS';  // Comic Sans MS als Schriftart
+        this.ctx.fillStyle = 'gold';  // Goldene Farbe
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('Pause', 360, 160);
+        this.ctx.font = '24px Comic Sans MS';
+        this.keyboard.buttons.forEach((text, index) => {
+            const buttonX = 360;
+            const buttonY = 210 + index * 50;
+
+            // Button Textfarbe basierend auf der Auswahl
+            this.ctx.fillStyle = index === this.keyboard.selectedButtonIndex ? 'red' : 'white';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText(text, buttonX, buttonY);
+        });
+    }
+
+    updateSoundBtnText() {
+        this.keyboard.buttons[1] = SoundOn ? 'Sound On' : 'Sound Off';
+    }
+
     drawObjectsToWorld() {
         this.addObjectsToWorld(this.level.background);
         this.addObjectsToWorld(this.level.clouds);
@@ -239,6 +285,9 @@ class World {
         this.addToMap(this.level.endboss)
         this.addToMap(this.character);
         this.ctx.translate(-this.cameraX, 0);
+        if (this.keyboard.pause) {
+            this.addPauseMenu();
+        }
         this.addToMap(this.healthbar);
         this.addToMap(this.salsabar);
         this.addToMap(this.coinbar);
