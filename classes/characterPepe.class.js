@@ -49,7 +49,8 @@ class CharacterPepe extends MovableObject {
     images = {};
     world;
     inAir = false;
-    speed = 3;
+    speed = 3; 
+    posY = 200;
     lastFrameTime = 0;
     frameIntervalDeath = 200;
     frameIntervalIdle = 330;
@@ -64,13 +65,15 @@ class CharacterPepe extends MovableObject {
     Bottles = []
 
 
-    constructor(keyboard) {
+    constructor(keyboard, world) {
         super().loadImage('../assets/2_character_pepe/1_idle/idle/I-1.png');
         this.loadImages(this.imagesIdle);
         this.loadImages(this.imagesWalk);
         this.loadImages(this.imagesJump);
         this.loadImages(this.imagesDeath);
         this.loadImages(this.imagesHurt);
+        this.world = world;
+        this.posX = 2000;
         this.offsetY = 110;
         this.offsetX = 57;
         this.offsetLength = 120;
@@ -143,9 +146,7 @@ class CharacterPepe extends MovableObject {
                 this.collisionY = false;
                 this.jump();
             }
-            if (this.posX >= 295) {
-                this.cameraX(295);
-            }
+            
         }
     }
 
@@ -213,7 +214,10 @@ class CharacterPepe extends MovableObject {
         const newPosition = this.posX -= this.speed;
         if (newPosition <= -10) {
             this.posX = - 10;
-        } else {
+        } else if(this.world.cameraDriveDone && (newPosition <= 2121)) {
+            this.posX =  2121;
+        }
+        else {
             this.posX = newPosition;
         }
     }
@@ -226,17 +230,31 @@ class CharacterPepe extends MovableObject {
         this.lastFrameTime = currentTime;
     }
 
-    cameraX(versatz) {
-        setInterval(() => {
-            const newCameraX = -this.posX + versatz;
+    cameraX(versatz) {    
+            const newCameraX = -this.posX + versatz;       
             if (newCameraX > 0) {
                 this.world.cameraX = undefined;
             } else if (newCameraX <= -2157) {
                 this.world.cameraX = -2157;
+            } else if (newCameraX <= -1775) {
+                this.cameraDrive();
             } else {
                 this.world.cameraX = newCameraX;
             }
-        }, 100);
+        
+    }
+
+    cameraDrive() {
+        const smoothScroll = setInterval(() => {
+            if (this.world.cameraX > -2157 && !this.world.cameraDriveDone) {
+                this.world.cameraX -= 0.1;
+            } else if (!this.world.cameraDriveDone){
+                this.world.cameraX = -2157;
+                this.posX = 2310;
+                this.world.cameraDriveDone = true; 
+                clearInterval(smoothScroll);  // Stoppe das Bewegungstimer
+            }
+        }, 50);  // Geschwindigkeit der Bewegung
     }
 
     jump() {

@@ -22,7 +22,10 @@ class Sounds {
             };
 
             playWithRandomDelay();
-        }// Start der rekursiven Funktion
+        } else {
+            this.soundChicken.pause();
+            clearTimeout(this.chickenSoundTimeout);
+        }
     }
 
     playBackgroundSound() {
@@ -34,18 +37,20 @@ class Sounds {
             });
             this.backgroundSound.play();
 
+        } else {
+            this.backgroundSound.pause();
         }
     }
 
     stopSounds() {
         // Stoppe alle Audio-Wiedergaben
         this.soundChicken.pause();
-        this.soundChicken.currentTime = 0;  // Setze den Sound auf den Anfang zurück
+          // Setze den Sound auf den Anfang zurück
 
         this.backgroundSound.pause();
-        this.backgroundSound.currentTime = 0;
+        
 
         // Stoppe das wiederholte Abspielen des Chicken Sounds
-        clearTimeout(this.chickenSoundTimeout);
+        
     }
 }

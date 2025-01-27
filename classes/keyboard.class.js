@@ -109,6 +109,10 @@ class Keyboard {
         this.addIngameListener();
       } else if (selectedButton === 'Sound On' || selectedButton === 'Sound Off') {
         this.toggleSound();
+        
+          this.world.sounds.playChickenSound();
+          this.world.sounds.playBackgroundSound();
+        
         this.updateSoundBtnText();
       } else if (selectedButton === 'Exit') {
         this.world.running = false;

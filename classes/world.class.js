@@ -20,9 +20,9 @@ class World {
         this.keyboard = new Keyboard(this.ctx, this);
         this.statusbar = statusbar;
         this.level = level1;  // Achte darauf, dass level1 korrekt definiert ist
-        this.character = new CharacterPepe(this.keyboard);  // Hier keyboard übergeben
-
-        // Initialisiere die Statusleisten
+        this.character = new CharacterPepe(this.keyboard, this);  // Hier keyboard übergeben
+        this.cameraDriveDone = false;
+        this.angerDone = false;
         this.healthbar = new Statusbar(
             './assets/7_statusbars/1_statusbar/2_statusbar_health/green/100.png',
             40, 420, 200, 50, this.character
@@ -149,13 +149,13 @@ class World {
     }
 
     deleteDeadEnemies() {
-            this.level.enemies.forEach(enemy => {
-                if (enemy.dead) {
-                    setTimeout(() => {
-                        this.level.enemies = this.level.enemies.filter(e => e !== enemy);
-                    }, 1200);
-                }
-            });
+        this.level.enemies.forEach(enemy => {
+            if (enemy.dead) {
+                setTimeout(() => {
+                    this.level.enemies = this.level.enemies.filter(e => e !== enemy);
+                }, 1200);
+            }
+        });
     }
 
     setWorld() {
@@ -193,31 +193,70 @@ class World {
             }
         });
     }
+    setCamera() {
+        if (this.character.posX >= 295) {
+            this.character.cameraX(295);
+        }
+    }
 
+    playEndbossAnimation() {
+        if (this.level.endboss.posX >= 2525 && !this.angerDone) {
+            this.level.endboss.animate(this.level.endboss.endbossWalking);
+            this.level.endboss.moveChicken();
+        } else if (!this.angerDone) {
+            this.level.endboss.animate(this.level.endboss.endbossAngry);
+            setTimeout(() => {
+                this.angerDone = true;
+            }, 6000);
+        }  
+    }
+
+    checkEndbossTrigger() {
+        if (this.cameraDriveDone) {
+            this.playEndbossAnimation();
+        }
+    }
+
+    checkCharacterPosX() {
+        if (!(this.character.posX >= 2070) && !this.cameraDriveDone) {
+            this.characterMovements();
+        }
+        this.checkEndbossTrigger();
+        
+        if (this.angerDone) {
+            this.characterMovements();
+            this.level.endboss.endbossFight();
+        }
+
+    }
+
+    GameNotPaused() {
+        this.level.clouds.forEach(cloud => cloud.moveClouds());
+        this.chickenMovement();
+        this.checkCharacterPosX();
+        this.checkAllCollisions();
+        this.deleteDeadEnemies();
+        this.coinbar.setCoin();
+        this.healthbar.setHealth();
+        this.salsabar.setSalsa();
+        this.level.coins.forEach(coin => coin.animate(coin.CoinImages));
+        this.level.salsa.forEach(salsa => salsa.animate(salsa.salsaImages));
+        this.drawObjectsToWorld();
+    }
+
+    checkPauseStatus() {
+        if (!this.keyboard.pause) {
+            this.GameNotPaused();
+        } else {
+            this.drawObjectsToWorld();
+        }
+    }
     draw() {
         if (this.running) {
+            this.setCamera();
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
             this.ctx.translate(this.cameraX, 0);
-            if (!this.keyboard.pause) {
-                this.level.clouds.forEach(cloud => cloud.moveClouds());
-                this.chickenMovement();
-                this.characterMovements();
-                this.checkAllCollisions();
-                this.deleteDeadEnemies();
-                this.coinbar.setCoin();
-                this.healthbar.setHealth();
-                this.salsabar.setSalsa();
-                this.level.coins.forEach(coin => coin.animate(coin.CoinImages));
-                this.level.salsa.forEach(salsa => salsa.animate(salsa.salsaImages));
-                this.drawObjectsToWorld();
-            } else {
-                this.drawObjectsToWorld();
-            }
-
-            if (this.character.posX >= 2500) {
-                this.level.endboss.animate(this.level.endboss.endbossAngry);
-                this.level.endboss.moveChicken();
-            }
+            this.checkPauseStatus();
             this.ctx.translate(-this.cameraX, 0);
             let self = this;
             requestAnimationFrame(function () {
@@ -235,13 +274,11 @@ class World {
                     bottle.bottleFly();
                     bottle.animate(bottle.bottleFlying);
                 } else {
-
                     if (!bottle.animationStarted) {
                         this.startAnimationSequence(bottle, bottle.bottleSplash, () => {
                             bottle.collisionDetected = true;
                             bottle.animationStarted = true;
                         });
-                        // Flag setzen, um Animation nur einmal zu starten
                     }
                 }
             });
@@ -259,11 +296,13 @@ class World {
         this.ctx.textAlign = 'center';
         this.ctx.fillText('Pause', 360, 160);
         this.ctx.font = '24px Comic Sans MS';
+        this.setButtons();   
+    }
+
+    setButtons() {
         this.keyboard.buttons.forEach((text, index) => {
             const buttonX = 360;
             const buttonY = 210 + index * 50;
-
-            // Button Textfarbe basierend auf der Auswahl
             this.ctx.fillStyle = index === this.keyboard.selectedButtonIndex ? 'red' : 'white';
             this.ctx.textAlign = 'center';
             this.ctx.fillText(text, buttonX, buttonY);
@@ -273,8 +312,7 @@ class World {
     updateSoundBtnText() {
         this.keyboard.buttons[1] = SoundOn ? 'Sound On' : 'Sound Off';
     }
-
-    drawObjectsToWorld() {
+    allArraysToDraw() {
         this.addObjectsToWorld(this.level.background);
         this.addObjectsToWorld(this.level.clouds);
         this.addObjectsToWorld(this.level.salsa);
@@ -282,6 +320,9 @@ class World {
         this.addObjectsToWorld(this.level.enemies);
         this.addObjectsToWorld(this.level.rocks);
         this.addObjectsToWorld(this.character.Bottles)
+    }
+    drawObjectsToWorld() {
+        this.allArraysToDraw();
         this.addToMap(this.level.endboss)
         this.addToMap(this.character);
         this.ctx.translate(-this.cameraX, 0);
