@@ -27,6 +27,15 @@ class Statusbar extends DrawAbleObject {
         '../assets/7_statusbars/1_statusbar/1_statusbar_coin/orange/100.png',
     ]
 
+    ImagesBossHealth = [
+        '../assets/7_statusbars/2_statusbar_endboss/green/green0.png',
+        '../assets/7_statusbars/2_statusbar_endboss/green/green20.png',
+        '../assets/7_statusbars/2_statusbar_endboss/green/green40.png',
+        '../assets/7_statusbars/2_statusbar_endboss/green/green60.png',
+        '../assets/7_statusbars/2_statusbar_endboss/green/green80.png',
+        '../assets/7_statusbars/2_statusbar_endboss/green/green100.png'
+    ]
+
     images = {};
 
     constructor(path, posX, posY, width, height, character) {
@@ -34,6 +43,7 @@ class Statusbar extends DrawAbleObject {
         this.loadImages(this.ImagesHealth);
         this.loadImages(this.ImagesSalsa);
         this.loadImages(this.ImagesCoins);
+        this.loadImages(this.ImagesBossHealth);
         this.posX = posX;
         this.posY = posY;
         this.width = width;
@@ -86,6 +96,22 @@ class Statusbar extends DrawAbleObject {
             this.img = this.images[this.ImagesCoins[1]]
         } else if (this.character.coinCounter < 20) {
             this.img = this.images[this.ImagesCoins[0]]
+        }
+    }
+
+    setBossHealth() {
+        if (this.character.world.level.endboss.energy >= 100) {
+            this.img = this.images[this.ImagesBossHealth[5]]
+        } else if (this.character.world.level.endboss.energy >= 80) {
+            this.img = this.images[this.ImagesBossHealth[4]]
+        } else if (this.character.world.level.endboss.energy >= 60) {
+            this.img = this.images[this.ImagesBossHealth[3]]
+        } else if (this.character.world.level.endboss.energy >= 40) {
+            this.img = this.images[this.ImagesBossHealth[2]]
+        } else if (this.character.world.level.endboss.energy >= 20) {
+            this.img = this.images[this.ImagesBossHealth[1]]
+        } else if (this.character.world.level.endboss.energy < 20) {
+            this.img = this.images[this.ImagesBossHealth[0]]
         }
     }
 }

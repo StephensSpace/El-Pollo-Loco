@@ -1,30 +1,25 @@
 class Sounds {
     soundChicken;
     backgroundSound;
-    chickenSoundTimeout; // Zum Verwalten der Timeout-ID
+    chickenSoundTimeout;
+    coinSound;
+    bottle
 
     constructor() {
         this.soundChicken = new Audio('../audio/chickenSound.wav');
         this.backgroundSound = new Audio('../audio/backgroundSound.wav');
+        this.coinSound = new Audio('../audio/retro-coin.wav')
+        this.bottle = new Audio('../audio/collectBottle.mp3')
+        this.bottleBreaking = new Audio('../audio/bottleBreaking.wav')
         this.playChickenSound();
         this.playBackgroundSound();
     }
 
     playChickenSound() {
         if (SoundOn) {
-            const playWithRandomDelay = () => {
-                this.soundChicken.play();
-
-                // Berechne zufällige Verzögerung zwischen 5000ms und 8000ms
-                const delay = 5000 + Math.random() * 3000;
-
-                this.chickenSoundTimeout = setTimeout(playWithRandomDelay, delay);
-            };
-
-            playWithRandomDelay();
+            this.soundChicken.play();
         } else {
             this.soundChicken.pause();
-            clearTimeout(this.chickenSoundTimeout);
         }
     }
 
@@ -43,14 +38,16 @@ class Sounds {
     }
 
     stopSounds() {
-        // Stoppe alle Audio-Wiedergaben
-        this.soundChicken.pause();
-          // Setze den Sound auf den Anfang zurück
-
-        this.backgroundSound.pause();
-        
-
-        // Stoppe das wiederholte Abspielen des Chicken Sounds
-        
+        if (this.soundChicken) {
+            this.soundChicken.pause();
+            this.soundChicken.currentTime = 0;
+            this.soundChicken = null;
+        }
+    
+        if (this.backgroundSound) {
+            this.backgroundSound.pause();
+            this.backgroundSound.currentTime = 0;
+            this.backgroundSound = null;
+        }
     }
 }

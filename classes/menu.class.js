@@ -16,8 +16,6 @@ class StartMenu extends DrawAbleObject {
         this.buttons = ['Start', 'Sound On', 'Controls'];
         this.selectedButtonIndex = 0;
         this.handleKeyDown = this.handleKeyDown.bind(this);
-        this.handleMouseMove = this.handleMouseMove.bind(this);
-        this.handleMouseClick = this.handleMouseClick.bind(this);
         this.addEventListeners();
     }
 
@@ -76,67 +74,13 @@ class StartMenu extends DrawAbleObject {
 
     addEventListeners() {
         window.addEventListener('keydown', this.handleKeyDown);
-        this.ctx.canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
-        this.ctx.canvas.addEventListener('click', this.handleMouseClick.bind(this));
     }
 
     removeEventListeners() {
         window.removeEventListener('keydown', this.handleKeyDown);
-        this.ctx.canvas.removeEventListener('mousemove', this.handleMouseMove);
-        this.ctx.canvas.removeEventListener('click', this.handleMouseClick);
     }
 
-    handleMouseMove(e) {
-        const mousePos = this.getMousePosition(e);
 
-        if (!this.controls) {
-            this.checkButtonSelection(mousePos);
-        } else {
-            this.checkBackButton(mousePos);
-        }
-    }
-
-    getMousePosition(e) {
-        const rect = this.ctx.canvas.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-        return { mouseX, mouseY };
-    }
-
-    checkButtonSelection({ mouseX, mouseY }) {
-        this.buttons.forEach((_, index) => {
-            const buttonX = 275;
-            const buttonY = 179 + index * 50;
-            const buttonWidth = 180;
-            const buttonHeight = 50;
-
-            if (this.isMouseOverButton(mouseX, mouseY, buttonX, buttonY, buttonWidth, buttonHeight)) {
-                this.selectedButtonIndex = index;
-            }
-        });
-    }
-
-    isMouseOverButton(mouseX, mouseY, buttonX, buttonY, buttonWidth, buttonHeight) {
-        return mouseX >= buttonX &&
-            mouseX <= buttonX + buttonWidth &&
-            mouseY >= buttonY &&
-            mouseY <= buttonY + buttonHeight;
-    }
-
-    checkBackButton({ mouseX, mouseY }) {
-        const backBtnX = 420;
-        const backBtnY = 130;
-        const backBtnWidth = 40;
-        const backBtnHeight = 40;
-
-        if (this.isMouseOverButton(mouseX, mouseY, backBtnX, backBtnY, backBtnWidth, backBtnHeight)) {
-            this.controls = true;
-        }
-    }
-
-    handleMouseClick(e) {
-        this.handleButtonClick();  // Ein Klick entspricht einem Enter-Druck
-    }
 
     handleKeyDown(e) {
         if (e.key === 'ArrowUp') {

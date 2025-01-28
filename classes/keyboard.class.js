@@ -68,15 +68,12 @@ class Keyboard {
 
 
   toggleListeners() {
-    console.log("Pause status:", this.pause);
     if (this.pause) {
       this.removeIngameListener();
       this.addPauseMenuListeners();
-      console.log("Pause menu listeners added");
     } else {
       this.removePauseMenuListeners();
       this.addIngameListener();
-      console.log("Ingame listeners added");
     }
   }
 
@@ -90,7 +87,6 @@ class Keyboard {
   }
 
   handleKeyDown(e) {
-    console.log("Taste gedrückt:", e.key); // Debugging
     if (e.key === 'ArrowUp') {
       this.selectedButtonIndex =
         (this.selectedButtonIndex - 1 + this.buttons.length) % this.buttons.length;

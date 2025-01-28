@@ -49,10 +49,10 @@ class CharacterPepe extends MovableObject {
     images = {};
     world;
     inAir = false;
-    speed = 3; 
+    speed = 3;
     posY = 200;
     lastFrameTime = 0;
-    frameIntervalDeath = 200;
+    frameIntervalDeath = 100;
     frameIntervalIdle = 330;
     frameIntervalWalk = 100;
     frameIntervalJump = 100;
@@ -72,6 +72,7 @@ class CharacterPepe extends MovableObject {
         this.loadImages(this.imagesJump);
         this.loadImages(this.imagesDeath);
         this.loadImages(this.imagesHurt);
+        this.Lost = false;
         this.world = world;
         this.posX = 2000;
         this.offsetY = 110;
@@ -79,7 +80,7 @@ class CharacterPepe extends MovableObject {
         this.offsetLength = 120;
         this.offsetHeight = 122;
         this.keyboard = keyboard
-        this.checkDeath();
+        
 
     }
 
@@ -98,15 +99,18 @@ class CharacterPepe extends MovableObject {
     }
 
     checkDeath() {
-        setInterval(() => {
             if (this.energy <= 0 && this.alive) {
-                this.animateDeath();
-                setInterval(() => {
-                    this.img = this.images[this.imagesDeath[1]]
-                }, 210);
-                this.alive = false;
+                this.animate(this.imagesDeath);
+                if (!this.Lost) {
+                    setTimeout(() => {
+                        this.img = this.images[this.imagesDeath[1]]
+                        this.Lost = true;
+                        
+                    }, 2000);
+                    this.alive = false;
+                }
+                
             }
-        }, 200);
 
     }
 
@@ -134,20 +138,28 @@ class CharacterPepe extends MovableObject {
             this.speedY = 0;
         }
         if (this.alive) {
-            if (this.keyboard.rechts) {
+            if (this.keyboard.rechts && !this.world.level.endboss.dead) {
                 this.handleWalk(this.walkRight());
                 this.speed = 3;
             }
-            if (this.keyboard.links) {
+            if (this.keyboard.links && !this.world.level.endboss.dead) {
                 this.handleWalk(this.walkLeft());
                 this.speed = 3;
             }
-            if ((this.keyboard.jump && !this.fall) || (this.collisionY && this.keyboard.jump && this.fallOnBlock && this.speedY == 0)) {
+            if (this.shouldJump()) {
                 this.collisionY = false;
                 this.jump();
             }
-            
+
         }
+    }
+
+    shouldJump() {
+        const jumpingCondition = this.keyboard.jump && !this.fall;
+        const blockCondition = this.collisionY && this.keyboard.jump && this.fallOnBlock && this.speedY === 0;
+        const endBossCondition = this.world.level.endboss.dead && this.speedY === 0;
+
+        return jumpingCondition || blockCondition || endBossCondition;
     }
 
     startThrow() {
@@ -184,7 +196,7 @@ class CharacterPepe extends MovableObject {
 
     animateJump() {
         const currentTime = Date.now();
-        if ((this.keyboard.jump || this.fall) && !this.collisionY && this.alive) {
+        if (((this.keyboard.jump || this.fall) && !this.collisionY && this.alive) || this.world.level.endboss.dead) {
             this.soundWalking.pause();
             if (currentTime - this.lastFrameTime >= this.frameIntervalJump) {
                 this.playAnimation(currentTime, this.imagesJump)
@@ -214,8 +226,8 @@ class CharacterPepe extends MovableObject {
         const newPosition = this.posX -= this.speed;
         if (newPosition <= -10) {
             this.posX = - 10;
-        } else if(this.world.cameraDriveDone && (newPosition <= 2121)) {
-            this.posX =  2121;
+        } else if (this.world.cameraDriveDone && (newPosition <= 2121)) {
+            this.posX = 2121;
         }
         else {
             this.posX = newPosition;
@@ -230,28 +242,28 @@ class CharacterPepe extends MovableObject {
         this.lastFrameTime = currentTime;
     }
 
-    cameraX(versatz) {    
-            const newCameraX = -this.posX + versatz;       
-            if (newCameraX > 0) {
-                this.world.cameraX = undefined;
-            } else if (newCameraX <= -2157) {
-                this.world.cameraX = -2157;
-            } else if (newCameraX <= -1775) {
-                this.cameraDrive();
-            } else {
-                this.world.cameraX = newCameraX;
-            }
-        
+    cameraX(versatz) {
+        const newCameraX = -this.posX + versatz;
+        if (newCameraX > 0) {
+            this.world.cameraX = undefined;
+        } else if (newCameraX <= -2157) {
+            this.world.cameraX = -2157;
+        } else if (newCameraX <= -1775) {
+            this.cameraDrive();
+        } else {
+            this.world.cameraX = newCameraX;
+        }
+
     }
 
     cameraDrive() {
         const smoothScroll = setInterval(() => {
             if (this.world.cameraX > -2157 && !this.world.cameraDriveDone) {
                 this.world.cameraX -= 0.1;
-            } else if (!this.world.cameraDriveDone){
+            } else if (!this.world.cameraDriveDone) {
                 this.world.cameraX = -2157;
                 this.posX = 2310;
-                this.world.cameraDriveDone = true; 
+                this.world.cameraDriveDone = true;
                 clearInterval(smoothScroll);  // Stoppe das Bewegungstimer
             }
         }, 50);  // Geschwindigkeit der Bewegung

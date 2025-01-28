@@ -7,12 +7,14 @@ class World {
     ctx;
     cameraX;
     pauseMenu = new PauseMenu();
+    endMenu = new EndMenu();
     sounds = new Sounds();
     healthbar;
     salsabar;
     selectedButtonIndex = 0;
     coinbar;
     running = true;
+
 
     constructor(canvas, statusbar) {
         this.canvas = canvas;
@@ -23,8 +25,10 @@ class World {
         this.character = new CharacterPepe(this.keyboard, this);  // Hier keyboard übergeben
         this.cameraDriveDone = false;
         this.angerDone = false;
+        this.WonImage = new Statusbar('../assets/9_intro_outro_screens/win/won_2.png',
+            2170, 0, 690, 450)
         this.healthbar = new Statusbar(
-            './assets/7_statusbars/1_statusbar/2_statusbar_health/green/100.png',
+            '../assets/7_statusbars/1_statusbar/2_statusbar_health/green/100.png',
             40, 420, 200, 50, this.character
         );
         this.salsabar = new Statusbar(
@@ -35,6 +39,8 @@ class World {
             '../assets/7_statusbars/1_statusbar/1_statusbar_coin/orange/0.png',
             480, 420, 200, 50, this.character
         );
+        this.ednbossBar = new Statusbar('../assets/7_statusbars/2_statusbar_endboss/green/green100.png',
+            210, 20, 300, 50, this.character)
 
         this.selectedButtonIndex = 0;
         this.draw();
@@ -57,12 +63,11 @@ class World {
         if (this.character.isColliding(this.level.endboss)) {
             collisionDetected = true;
             this.character.hurt = true;
-            this.character.energy -= 0.001;
+            this.character.energy -= 0.8;
 
             if (this.character.energy >= 10) {
                 this.character.animateHurt();
             }
-            console.log(this.character.energy);
         }
         if (!collisionDetected) {
             this.character.hurt = false;
@@ -70,7 +75,8 @@ class World {
     }
 
     startAnimationSequence(bottle, animationArray, onComplete) {
-        let frameCount = 0; // Anzahl der Frames
+        let frameCount = 0;
+        this.sounds.bottleBreaking.play();
         const interval = setInterval(() => {
             bottle.animate(animationArray); // Animation ausführen
             frameCount++;
@@ -98,6 +104,17 @@ class World {
                         break;
                     }
                 }
+                if (this.level.endboss.isColliding(bottle)) {
+                    setTimeout(() => {
+                        bottle.collisionDetected = true;
+                        this.level.endboss.energy -= 33.6;
+
+                        this.level.endboss.animate(this.level.endboss.endbossHurt);
+                        if (this.level.endboss.energy <= 0) {
+                            this.level.endboss.dead = true;
+                        }
+                    }, 50);
+                }
                 if (bottle.posY >= 360) {
                     bottle.collisionDetected = true;
                 }
@@ -110,7 +127,7 @@ class World {
             if (this.character.isColliding(coin) && !coin.collisionDetected) {
                 coin.collisionDetected = true;
                 this.character.coinCounter += 5;
-                //play sound
+                this.sounds.coinSound.play();
             }
         });
         this.level.coins = this.level.coins.filter(coin => !coin.collisionDetected);
@@ -121,7 +138,7 @@ class World {
             if (this.character.isColliding(salsa) && !salsa.collisionDetected) {
                 salsa.collisionDetected = true;
                 this.character.bottleCounter += 10;
-                //play sound
+                this.sounds.bottle.play();
             }
         });
         this.level.salsa = this.level.salsa.filter(salsa => !salsa.collisionDetected);
@@ -171,8 +188,10 @@ class World {
     }
 
     characterMovements() {
-        this.character.startThrow();
-        this.character.animateIdle();
+        if (!this.level.endboss.dead) {
+            this.character.startThrow();
+            this.character.animateIdle();
+        }
         this.character.animateMovement();
         this.character.applyGravity();
         this.character.animateJump();
@@ -208,7 +227,7 @@ class World {
             setTimeout(() => {
                 this.angerDone = true;
             }, 6000);
-        }  
+        }
     }
 
     checkEndbossTrigger() {
@@ -222,7 +241,7 @@ class World {
             this.characterMovements();
         }
         this.checkEndbossTrigger();
-        
+
         if (this.angerDone) {
             this.characterMovements();
             this.level.endboss.endbossFight();
@@ -233,9 +252,11 @@ class World {
     GameNotPaused() {
         this.level.clouds.forEach(cloud => cloud.moveClouds());
         this.chickenMovement();
+        this.character.checkDeath();
         this.checkCharacterPosX();
         this.checkAllCollisions();
         this.deleteDeadEnemies();
+        this.ednbossBar.setBossHealth();
         this.coinbar.setCoin();
         this.healthbar.setHealth();
         this.salsabar.setSalsa();
@@ -296,7 +317,7 @@ class World {
         this.ctx.textAlign = 'center';
         this.ctx.fillText('Pause', 360, 160);
         this.ctx.font = '24px Comic Sans MS';
-        this.setButtons();   
+        this.setButtons();
     }
 
     setButtons() {
@@ -325,9 +346,21 @@ class World {
         this.allArraysToDraw();
         this.addToMap(this.level.endboss)
         this.addToMap(this.character);
+
+        if (this.level.endboss.deadAnimationDone) {
+            this.addToMap(this.WonImage)
+        }
         this.ctx.translate(-this.cameraX, 0);
         if (this.keyboard.pause) {
             this.addPauseMenu();
+        }
+        if (this.angerDone) {
+            this.addToMap(this.ednbossBar);
+        }
+        if (this.level.endboss.Won || this.character.Lost) {
+            this.addToMap(this.endMenu);
+            this.addToMap(this.endMenu.Yes);
+            this.addToMap(this.endMenu.No);
         }
         this.addToMap(this.healthbar);
         this.addToMap(this.salsabar);

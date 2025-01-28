@@ -12,7 +12,5 @@ class PauseMenu extends DrawAbleObject {
         
     }
  
-    drawMenu(ctx){
-        this.startBtn.draw(ctx);
-    }
+    
 }

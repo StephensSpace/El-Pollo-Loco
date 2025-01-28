@@ -28,15 +28,34 @@ class Endboss extends MovableObject {
         '../assets/4_enemie_boss_chicken/3_attack/G20.png',
     ]
 
+    endbossHurt = [
+        '../assets/4_enemie_boss_chicken/4_hurt/G21.png',
+        '../assets/4_enemie_boss_chicken/4_hurt/G22.png',
+        '../assets/4_enemie_boss_chicken/4_hurt/G23.png',
+    ]
+
+    endbossDead = [
+        '../assets/4_enemie_boss_chicken/5_dead/G24.png',
+        '../assets/4_enemie_boss_chicken/5_dead/G25.png',
+        '../assets/4_enemie_boss_chicken/5_dead/G26.png'
+    ]
+
     currentImage = 0;
+    currentEndbossImage = 0;
     lastFrameTime = 0;
     frameInterval = 200;
+    energy;
+    dead = false;
+    
 
     constructor(posX = 2700, posY = 120, width = 350, height = 350) {
         super().loadImage(this.endbossWalking[0]);
         this.loadImages(this.endbossWalking);
         this.loadImages(this.endbossAngry);
         this.loadImages(this.endbossAttack);
+        this.loadImages(this.endbossHurt);
+        this.loadImages(this.endbossDead);
+        this.Won = false;
         this.posX = posX;
         this.posY = posY;
         this.width = width;
@@ -49,52 +68,79 @@ class Endboss extends MovableObject {
         this.movingLeft = true;
         this.walking = true;
         this.speedLeft = 1.3;
+        this.energy = 100;
+        this.attackStarted = false;
+        this.attackDone = false;
+        this.deadAnimationDone = false;
+
     }
 
-    animate(array) {
+    animateEndboss(array) {
         const currentTime = Date.now();
         if (currentTime - this.lastFrameTime >= this.frameInterval) {
-            let path = array[this.currentImage];
-            this.img = this.images[path]
-            this.currentImage++;
+            let path = array[this.currentEndbossImage];
+            this.img = this.images[path];
+            this.currentEndbossImage++;
             this.lastFrameTime = currentTime;
-            if (this.currentImage == array.length) {
-                this.currentImage = 0;
+            if (this.currentEndbossImage === array.length) {
+                this.attackStarted = true;
+                this.currentEndbossImage = 0;
+                return;
             }
         }
     }
+
     moveChicken() {
         this.posX -= 1;
     }
 
     endbossFight() {
         this.updateEndbossPosition();
-
     }
 
     updateEndbossPosition() {
-        if (this.movingLeft) {       
-            if (this.walking) { 
-                this.animate(this.endbossWalking); 
+        if (this.movingLeft && !this.dead) {
+            if (this.walking) {
+                this.animate(this.endbossWalking);
                 this.posX -= this.speedLeft;
             }
-            if (this.posX < this.targetY) {
+            if (this.posX < this.targetY && !this.attackDone) {
                 this.walking = false;
-                this.animate(this.endbossAttack);
-                this.posX = this.posX
-                setTimeout(() => {
-                    this.targetY = this.getRandomTargetY(2400, 2500);
-                    this.movingLeft = false;
-                }, 1500);
+                this.animateEndboss(this.endbossAttack);
+                if (this.attackStarted) {
+                    setTimeout(() => {
+                        this.targetY = this.getRandomTargetY(2400, 2500);
+                        this.movingLeft = false;
+                        this.attackDone = true;
+                    }, 2000);
+                    this.attackStarted = true;
+                }
                 this.speedLeft = this.calculateRandomSpeed();
             }
-        } else {
-            this.walking = true;
+        } else if (!this.dead) {
             this.animate(this.endbossWalking);
+            this.walking = true;
             this.posX += 1;
             if (this.posX >= this.targetY) {
+                this.attackStarted = false;
+                this.attackDone = false;
                 this.targetY = this.getRandomTargetY(2150, 2300);
                 this.movingLeft = true;
+            }
+        } else if (this.dead) {
+            if (!this.deadAnimationDone) {
+                this.animate(this.endbossDead);
+                if (!this.deadAnimationStarted) {
+                    
+                    setTimeout(() => {
+                        this.loadImage(this.endbossDead[2]);
+                        this.deadAnimationDone = true;
+                    }, 2000);
+                    setTimeout(() => {
+                        this.Won = true;
+                    }, 6000); 
+                    this.deadAnimationStarted = true;
+                }
             }
         }
     }
@@ -104,7 +150,7 @@ class Endboss extends MovableObject {
     }
 
     calculateRandomSpeed() {
-        return Math.random() * (3.0 - 1.0) + 1.0; 
+        return Math.random() * (3.0 - 1.0) + 1.0;
     }
 
 }
