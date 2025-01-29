@@ -52,17 +52,19 @@ class CharacterPepe extends MovableObject {
     speed = 3;
     posY = 200;
     lastFrameTime = 0;
-    frameIntervalDeath = 100;
-    frameIntervalIdle = 330;
-    frameIntervalWalk = 100;
-    frameIntervalJump = 100;
-    frameIntervalHurt = 100;
+    frameInterval = 100;
     alive = true;
     firstThrow = true;
     lastThrowTime = 0;
     coinCounter = 0;
     bottleCounter = 10;
     Bottles = []
+    currentImageWalk = 0;
+    currentImageIdle = 0;
+    currentImageJump = 0;
+    currentImageDeath = 0;
+    currentImageHurt = 0;
+
 
 
     constructor(keyboard, world) {
@@ -80,64 +82,130 @@ class CharacterPepe extends MovableObject {
         this.offsetLength = 120;
         this.offsetHeight = 122;
         this.keyboard = keyboard
-        
+        this.timeoutStarted = false;
 
+    }
+
+    checkCharacterPosX() {
+        if (!(this.posX >= 2070) && !this.world.cameraDriveDone) {
+            this.characterMovements();
+        }
+        this.world.checkEndbossTrigger();
+        if (this.world.angerDone) {
+            this.characterMovements();
+            this.world.level.endboss.endbossFight();
+        }
+    }
+
+    characterMovements() {
+        if (!this.world.level.endboss.dead) {
+            this.startThrow();
+            this.animateIdle();
+        }
+        this.animateMovement();
+        this.applyGravity();
+        this.animateJump();
+    }
+
+    checkCollisionsBlock() {
+        this.world.level.rocks.forEach(rock => {
+            this.isCollidingBlock(rock);
+
+            if (this.Bottles.length > 0) {
+                this.Bottles.forEach(bottle => {
+                    bottle.isCollidingBlock(rock, bottle);
+                });
+            }
+            this.world.level.enemies.forEach(enemy => {
+                enemy.isCollidingBlock(rock);
+            });
+        });
+    }
+
+    checkCollisionsEnemy() {
+        let collisionDetected = false;
+        this.world.level.enemies.forEach(enemy => {
+            if (this.isColliding(enemy) && this.energy > 0 && !enemy.dead) {
+                collisionDetected = true;
+                this.hurt = true;
+                this.energy -= 0.5;
+                this.world.sounds.OuchSound.play()
+                if (this.energy >= 10) {
+                    this.animateHurt();
+                }
+            }
+        });
+        if (this.isColliding(this.world.level.endboss)) {
+            collisionDetected = true;
+            this.hurt = true;
+            if (this.energy >= 0 && !this.world.level.endboss.dead) {
+                this.energy -= 0.8;
+            }
+            if (this.energy >= 5) {
+                this.animateHurt();
+                this.world.sounds.OuchSound.play();
+            }
+        }
+        if (!collisionDetected) {
+            this.hurt = false;
+            this.world.sounds.OuchSound.pause()
+        }
     }
 
     animateIdle() {
-        const currentTime = Date.now();
         if (this.alive && !this.hurt && !this.fall) {
             if (!this.keyboard.rechts && !this.keyboard.links && !this.keyboard.jump) {
                 if (SoundOn) { this.soundWalking.pause(); }
-                setInterval(() => {
-                    if (currentTime - this.lastFrameTime >= this.frameIntervalIdle) {
-                        this.playAnimation(currentTime, this.imagesIdle)
-                    }
-                }, 200);
+                this.currentImageIdle = this.animatePepe(this.imagesIdle, this.currentImageIdle);
             }
         }
-    }
-
-    checkDeath() {
-            if (this.energy <= 0 && this.alive) {
-                this.animate(this.imagesDeath);
-                if (!this.Lost) {
-                    setTimeout(() => {
-                        this.img = this.images[this.imagesDeath[1]]
-                        this.Lost = true;
-                        
-                    }, 2000);
-                    this.alive = false;
-                }
-                
-            }
-
-    }
-
-    animateDeath() {
-        const currentTime = Date.now();
-        this.soundWalking.pause();
-
-        if (currentTime - this.lastFrameTime >= this.frameIntervalDeath) {
-            this.playAnimation(currentTime, this.imagesDeath);
-        }
-
     }
 
     animateHurt() {
-        const currentTime = Date.now();
-        this.soundWalking.pause();
-        if (currentTime - this.lastFrameTime >= this.frameIntervalHurt) {
-            this.playAnimation(currentTime, this.imagesHurt)
+        if (this.hurt && this.alive) {
+            this.currentImageHurt = this.animatePepe(this.imagesHurt, this.currentImageHurt);
         }
     }
 
+    animatePepe(array, imageCounter) {
+        const currentTime = Date.now();
+        if (currentTime - this.lastFrameTime >= this.frameInterval) {
+            let path = array[imageCounter]; // Direktes Zugreifen auf das Array mit dem Counter
+            if (path) { // Sicherstellen, dass das Bild existiert
+                this.img = this.images[path];
+                imageCounter++; // Hochzählen
+            }
+            if (imageCounter >= array.length) { // Rücksetzen, wenn das Ende erreicht ist
+                imageCounter = 0;
+            }
+            this.lastFrameTime = currentTime;
+        }
+        return imageCounter; // Den neuen Wert des Counters zurückgeben
+    }
+
+    checkDeath() {
+        if (this.energy <= 0 && this.alive) {       
+            this.currentImageDeath = this.animatePepe(this.imagesDeath, this.currentImageDeath);
+            this.world.sounds.pepeDead.play();
+            if (!this.Lost && !this.timeoutStarted) {
+                this.timeoutStarted = true;           
+                setTimeout(() => {
+                    this.world.sounds.pepeDead.pause()
+                    this.alive = false;            
+                    setTimeout(() => {
+                        this.Lost = true;
+                        this.world.keyboard.toggleListeners();
+                    }, 1500);    
+                }, 2000);
+            }
+        }
+    }
 
     animateMovement() {
         if (!this.fall) {
             this.speedY = 0;
         }
-        if (this.alive) {
+        if (!this.timeoutStarted) {
             if (this.keyboard.rechts && !this.world.level.endboss.dead) {
                 this.handleWalk(this.walkRight());
                 this.speed = 3;
@@ -150,7 +218,6 @@ class CharacterPepe extends MovableObject {
                 this.collisionY = false;
                 this.jump();
             }
-
         }
     }
 
@@ -189,7 +256,7 @@ class CharacterPepe extends MovableObject {
     handleWalk(funct) {
         funct;
         if (!this.hurt && !this.fall) {
-            this.checkWalkAnimationTime();
+            this.currentImageWalk = this.animatePepe(this.imagesWalk, this.currentImageWalk);
             if (SoundOn) { this.soundWalking.play(); }
         }
     }
@@ -199,17 +266,12 @@ class CharacterPepe extends MovableObject {
         if (((this.keyboard.jump || this.fall) && !this.collisionY && this.alive) || this.world.level.endboss.dead) {
             this.soundWalking.pause();
             if (currentTime - this.lastFrameTime >= this.frameIntervalJump) {
-                this.playAnimation(currentTime, this.imagesJump)
+                this.currentImageJump = this.animatePepe(this.imagesJump, this.currentImageJump);
             }
         }
     }
 
-    checkWalkAnimationTime() {
-        const currentTime = Date.now();
-        if (currentTime - this.lastFrameTime >= this.frameIntervalWalk) {
-            this.playAnimation(currentTime, this.imagesWalk)
-        }
-    }
+
 
     walkRight() {
         this.otherDirection = false;
@@ -234,14 +296,6 @@ class CharacterPepe extends MovableObject {
         }
     }
 
-    playAnimation(currentTime, array) {
-        let i = this.currentImage % array.length;
-        let path = array[i];
-        this.img = this.images[path];
-        this.currentImage++;
-        this.lastFrameTime = currentTime;
-    }
-
     cameraX(versatz) {
         const newCameraX = -this.posX + versatz;
         if (newCameraX > 0) {
@@ -254,6 +308,12 @@ class CharacterPepe extends MovableObject {
             this.world.cameraX = newCameraX;
         }
 
+    }
+
+    setCamera() {
+        if (this.posX >= 295) {
+            this.cameraX(295);
+        }
     }
 
     cameraDrive() {

@@ -8,9 +8,14 @@ class Sounds {
     constructor() {
         this.soundChicken = new Audio('../audio/chickenSound.wav');
         this.backgroundSound = new Audio('../audio/backgroundSound.wav');
-        this.coinSound = new Audio('../audio/retro-coin.wav')
-        this.bottle = new Audio('../audio/collectBottle.mp3')
-        this.bottleBreaking = new Audio('../audio/bottleBreaking.wav')
+        this.coinSound = new Audio('../audio/retro-coin.wav');
+        this.bottle = new Audio('../audio/collectBottle.mp3');
+        this.bottleBreaking = new Audio('../audio/bottleBreaking.wav');
+        this.OuchSound = new Audio('../audio/Ouch.wav');
+        this.pepeDead = new Audio('../audio/pepeDead.wav');
+        this.endbossHurt = new Audio ('../audio/EndbossHurt.wav');
+        this.endbossDead = new Audio ('../audio/EndbossDead.wav');
+        this.chickenDead = new Audio ('../audio/chickenDead.wav');
         this.playChickenSound();
         this.playBackgroundSound();
     }

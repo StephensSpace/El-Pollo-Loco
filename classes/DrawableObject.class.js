@@ -20,7 +20,6 @@ class DrawAbleObject {
     }
 
     loadImages(Array) {
-        console.log('Array received in loadImages:', Array);
         Array.forEach(path => {
             let img = new Image();
             img.src = path;

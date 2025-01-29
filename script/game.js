@@ -3,6 +3,7 @@ let world;
 let SoundOn = true; 
 
 function init() {
+    deleteEndScreen();
     deleteWorld();
     canvas = document.getElementById('canvas');
     startScreen = new Startscreen(canvas); 
@@ -12,17 +13,26 @@ function init() {
 
 }
 function Gameinit() {
-    deleteStartScreen(); 
-    let statusbar = new Statusbar();
-    world = new World(canvas, statusbar);
+    deleteStartScreen();
+    deleteEndScreen();
+    deleteWorld(); 
+    world = new World(canvas);
 }
 
 function deleteStartScreen() {
     if (startScreen) {
-        startScreen.stop();  // Beende die Animation
-        startScreen = null;  // Menü-Objekt löschen
+        startScreen.stop();  
+        startScreen = null;  
         let ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);  // Bildschirm löschen
+        ctx.clearRect(0, 0, canvas.width, canvas.height);  
+    }
+}
+
+function deleteEndScreen() {
+    if (world && world.endMenu) { 
+        world.endMenu = null; 
+        let ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);  
     }
 }
 

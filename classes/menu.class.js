@@ -90,6 +90,9 @@ class StartMenu extends DrawAbleObject {
             this.selectedButtonIndex = (this.selectedButtonIndex + 1) % this.buttons.length;
         } else if (e.key === 'Enter') {
             this.handleButtonClick();
+        } else if (e.key === 'f' || e.key === 'F') {  // Überprüfe beide Varianten (mit und ohne Shift)
+            console.log('pressed');
+            canvas.requestFullscreen();
         }
     }
 

@@ -5,7 +5,11 @@ class Keyboard {
   throw = false;
   pause = false;
   selectedButtonIndex = 0;
-  buttons = ['Continue', 'Sound On', 'Exit']
+  buttons = ['Continue', 'Sound On', 'Exit'];
+
+  // Neue Variablen für EndMenu
+  endMenuButtons = ['Yes', 'No'];
+  selectedEndMenuButtonIndex = 0;
 
   constructor(ctx, world) {
     this.ctx = ctx;
@@ -41,6 +45,9 @@ class Keyboard {
       case "Space": // Werfen
         this.throw = true;
         break;
+      case "KeyF": // Werfen
+        canvas.requestFullscreen();
+        break;
       case "Escape": // Pause umschalten
         this.pause = !this.pause;
         this.toggleListeners();
@@ -66,9 +73,8 @@ class Keyboard {
     }
   }
 
-
   toggleListeners() {
-    if (this.pause) {
+    if (this.pause || this.world.level.endboss.Won || this.world.character.Lost) {
       this.removeIngameListener();
       this.addPauseMenuListeners();
     } else {
@@ -77,56 +83,78 @@ class Keyboard {
     }
   }
 
-  
-  addPauseMenuListeners() { 
+  addPauseMenuListeners() {
     window.addEventListener('keydown', this.handleKeyDown);
   }
-  
+
   removePauseMenuListeners() {
     window.removeEventListener('keydown', this.handleKeyDown);
   }
 
+  // Handle Pause-Menu-Button Navigation und Auswahl
   handleKeyDown(e) {
-    if (e.key === 'ArrowUp') {
-      this.selectedButtonIndex =
-        (this.selectedButtonIndex - 1 + this.buttons.length) % this.buttons.length;
-    } else if (e.key === 'ArrowDown') {
-      this.selectedButtonIndex = (this.selectedButtonIndex + 1) % this.buttons.length;
-    } else if (e.key === 'Enter') {
-      this.handleButtonClick();
+    if (!this.pause) {
+      if (e.key === 'ArrowLeft') {
+        this.selectedEndMenuButtonIndex =
+          (this.selectedEndMenuButtonIndex - 1 + this.endMenuButtons.length) % this.endMenuButtons.length;
+      } else if (e.key === 'ArrowRight') {
+        this.selectedEndMenuButtonIndex = (this.selectedEndMenuButtonIndex + 1) % this.endMenuButtons.length;
+      } else if (e.key === 'Enter') {
+        this.handleEndMenuButtonClick();
+      } else if (e.key === 'f' || e.key === 'F') {
+        canvas.requestFullscreen();
+      }
+    } else {
+      if (e.key === 'ArrowUp') {
+        this.selectedButtonIndex =
+          (this.selectedButtonIndex - 1 + this.buttons.length) % this.buttons.length;
+      } else if (e.key === 'ArrowDown') {
+        this.selectedButtonIndex = (this.selectedButtonIndex + 1) % this.buttons.length;
+      } else if (e.key === 'Enter') {
+        this.handleButtonClick();
+      } else if (e.key === 'f' || e.key === 'F') {
+        canvas.requestFullscreen();
+      }
     }
   }
 
-  handleButtonClick() {
-      const selectedButton = this.buttons[this.selectedButtonIndex];
-      if (selectedButton === 'Continue') {
-        this.pause = false;
-        this.removePauseMenuListeners();
-        this.addIngameListener();
-      } else if (selectedButton === 'Sound On' || selectedButton === 'Sound Off') {
-        this.toggleSound();
-        
-          this.world.sounds.playChickenSound();
-          this.world.sounds.playBackgroundSound();
-        
-        this.updateSoundBtnText();
-      } else if (selectedButton === 'Exit') {
-        this.world.running = false;
-        this.removePauseMenuListeners();
-        init();
-      }
-
+  // Handle Button Click im EndMenu
+  handleEndMenuButtonClick() {
+    const selectedButton = this.endMenuButtons[this.selectedEndMenuButtonIndex];
+    if (selectedButton === 'Yes') {
+      Gameinit();
+    } else if (selectedButton === 'No') {
+      init();
+    }
   }
 
- 
+  // Normaler Button Click (Pause Menu)
+  handleButtonClick() {
+    const selectedButton = this.buttons[this.selectedButtonIndex];
+    if (selectedButton === 'Continue') {
+      this.pause = false;
+      this.removePauseMenuListeners();
+      this.addIngameListener();
+    } else if (selectedButton === 'Sound On' || selectedButton === 'Sound Off') {
+      this.toggleSound();
+      this.world.sounds.playChickenSound();
+      this.world.sounds.playBackgroundSound();
+      this.updateSoundBtnText();
+    } else if (selectedButton === 'Exit') {
+      this.world.running = false;
+      this.removePauseMenuListeners();
+      init();
+    }
+  }
 
+  // Optional: Sound-Option umschalten
   toggleSound() {
-    SoundOn = !SoundOn; // Umschalten zwischen true und false
-
+    // Logik zum Umschalten der Lautstärke
+    console.log('Sound wurde umgeschaltet');
   }
 
   updateSoundBtnText() {
-    this.buttons[1] = SoundOn ? 'Sound On' : 'Sound Off';
+    // Update der Button-Beschriftung für "Sound On" / "Sound Off"
+    console.log('Sound Button Text aktualisiert');
   }
-
 }

@@ -40,13 +40,16 @@ class Endboss extends MovableObject {
         '../assets/4_enemie_boss_chicken/5_dead/G26.png'
     ]
 
-    currentImage = 0;
-    currentEndbossImage = 0;
+    currentImageWalking = 0;
+    currentImageHurt = 0;
+    currentImageAttack = 0;
+    currentImageDead = 0;
     lastFrameTime = 0;
     frameInterval = 200;
     energy;
+    world;
     dead = false;
-    
+
 
     constructor(posX = 2700, posY = 120, width = 350, height = 350) {
         super().loadImage(this.endbossWalking[0]);
@@ -67,27 +70,14 @@ class Endboss extends MovableObject {
         this.targetY = this.getRandomTargetY(2100, 2300);
         this.movingLeft = true;
         this.walking = true;
+        this.hurt = false;
         this.speedLeft = 1.3;
         this.energy = 100;
         this.attackStarted = false;
         this.attackDone = false;
         this.deadAnimationDone = false;
 
-    }
 
-    animateEndboss(array) {
-        const currentTime = Date.now();
-        if (currentTime - this.lastFrameTime >= this.frameInterval) {
-            let path = array[this.currentEndbossImage];
-            this.img = this.images[path];
-            this.currentEndbossImage++;
-            this.lastFrameTime = currentTime;
-            if (this.currentEndbossImage === array.length) {
-                this.attackStarted = true;
-                this.currentEndbossImage = 0;
-                return;
-            }
-        }
     }
 
     moveChicken() {
@@ -98,27 +88,52 @@ class Endboss extends MovableObject {
         this.updateEndbossPosition();
     }
 
+    animateEndboss(array, property) {
+        const currentTime = Date.now();
+        if (currentTime - this.lastFrameTime >= this.frameInterval) {
+            let path = array[property]; // Direktes Zugreifen auf das Array mit dem Property
+            if (path) { // Sicherstellen, dass das Bild existiert
+                this.img = this.images[path];
+                property++; // Nur hochzählen, wenn das Bild existiert
+            }
+            if (property >= array.length) { // Rücksetzen, wenn das Ende erreicht ist
+                property = 0;
+            }
+            this.lastFrameTime = currentTime;
+        }
+        return property; // Den neuen Wert von Property zurückgeben
+    }
+
     updateEndbossPosition() {
         if (this.movingLeft && !this.dead) {
             if (this.walking) {
-                this.animate(this.endbossWalking);
                 this.posX -= this.speedLeft;
+                if (!this.hurt) {
+                    this.currentImageWalking = this.animateEndboss(this.endbossWalking, this.currentImageWalking);
+                } else {
+                    this.currentImageHurt = this.animateEndboss(this.endbossHurt, this.currentImageHurt);
+                    this.world.sounds.endbossHurt.play();
+                }
             }
             if (this.posX < this.targetY && !this.attackDone) {
                 this.walking = false;
-                this.animateEndboss(this.endbossAttack);
-                if (this.attackStarted) {
+                this.currentImageAttack = this.animateEndboss(this.endbossAttack, this.currentImageAttack);
+                if (!this.attackStarted) {
                     setTimeout(() => {
                         this.targetY = this.getRandomTargetY(2400, 2500);
                         this.movingLeft = false;
                         this.attackDone = true;
-                    }, 2000);
+                    }, 1500);
                     this.attackStarted = true;
                 }
                 this.speedLeft = this.calculateRandomSpeed();
             }
         } else if (!this.dead) {
-            this.animate(this.endbossWalking);
+            if (!this.hurt) {
+                this.currentImageWalking = this.animateEndboss(this.endbossWalking, this.currentImageWalking);
+            } else {
+                this.currentImageHurt = this.animateEndboss(this.endbossHurt, this.currentImageHurt);
+            }
             this.walking = true;
             this.posX += 1;
             if (this.posX >= this.targetY) {
@@ -129,16 +144,16 @@ class Endboss extends MovableObject {
             }
         } else if (this.dead) {
             if (!this.deadAnimationDone) {
-                this.animate(this.endbossDead);
+                this.currentImageAttack = this.animateEndboss(this.endbossDead, this.currentImageAttack);
+                this.world.sounds.endbossDead.play();
                 if (!this.deadAnimationStarted) {
-                    
                     setTimeout(() => {
-                        this.loadImage(this.endbossDead[2]);
                         this.deadAnimationDone = true;
                     }, 2000);
                     setTimeout(() => {
                         this.Won = true;
-                    }, 6000); 
+                        this.world.keyboard.toggleListeners();
+                    }, 6000);
                     this.deadAnimationStarted = true;
                 }
             }
