@@ -6,8 +6,6 @@ class Keyboard {
   pause = false;
   selectedButtonIndex = 0;
   buttons = ['Continue', 'Sound On', 'Exit'];
-
-  // Neue Variablen für EndMenu
   endMenuButtons = ['Yes', 'No'];
   selectedEndMenuButtonIndex = 0;
 
@@ -30,7 +28,6 @@ class Keyboard {
     window.removeEventListener("keyup", this.keyUpHandler);
   }
 
-  // Methode für "Taste gedrückt"
   keyDownHandler(event) {
     switch (event.code) {
       case "ArrowLeft": // Linke Pfeiltaste
@@ -55,7 +52,6 @@ class Keyboard {
     }
   }
 
-  // Methode für "Taste losgelassen"
   keyUpHandler(event) {
     switch (event.code) {
       case "ArrowLeft":
@@ -91,7 +87,6 @@ class Keyboard {
     window.removeEventListener('keydown', this.handleKeyDown);
   }
 
-  // Handle Pause-Menu-Button Navigation und Auswahl
   handleKeyDown(e) {
     if (!this.pause) {
       if (e.key === 'ArrowLeft') {
@@ -118,7 +113,6 @@ class Keyboard {
     }
   }
 
-  // Handle Button Click im EndMenu
   handleEndMenuButtonClick() {
     const selectedButton = this.endMenuButtons[this.selectedEndMenuButtonIndex];
     if (selectedButton === 'Yes') {
@@ -128,7 +122,6 @@ class Keyboard {
     }
   }
 
-  // Normaler Button Click (Pause Menu)
   handleButtonClick() {
     const selectedButton = this.buttons[this.selectedButtonIndex];
     if (selectedButton === 'Continue') {
@@ -136,10 +129,10 @@ class Keyboard {
       this.removePauseMenuListeners();
       this.addIngameListener();
     } else if (selectedButton === 'Sound On' || selectedButton === 'Sound Off') {
-      this.toggleSound();
+      this.toggleSounds();
       this.world.sounds.playChickenSound();
       this.world.sounds.playBackgroundSound();
-      this.updateSoundBtnText();
+      this.world.updateSoundBtnText();
     } else if (selectedButton === 'Exit') {
       this.world.running = false;
       this.removePauseMenuListeners();
@@ -147,14 +140,18 @@ class Keyboard {
     }
   }
 
-  // Optional: Sound-Option umschalten
-  toggleSound() {
-    // Logik zum Umschalten der Lautstärke
-    console.log('Sound wurde umgeschaltet');
+  toggleSounds() {
+    SoundOn = !SoundOn;
   }
 
-  updateSoundBtnText() {
-    // Update der Button-Beschriftung für "Sound On" / "Sound Off"
-    console.log('Sound Button Text aktualisiert');
+  setButtons() {
+    this.buttons.forEach((text, index) => {
+      const buttonX = 360;
+      const buttonY = 210 + index * 50;
+      this.world.ctx.fillStyle = index === this.selectedButtonIndex ? 'red' : 'white';
+      this.world.ctx.textAlign = 'center';
+      this.world.ctx.fillText(text, buttonX, buttonY);
+    });
   }
+
 }

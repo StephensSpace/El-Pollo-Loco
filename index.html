@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Start</title>
     <link rel="stylesheet" href="./style.css">
+    <script src="./script/mobile.js" defer></script>
     <script src="./classes/DrawableObject.class.js"></script>
     <script src="./classes/startscreen.class.js"></script>
     <script src="./classes/menu.class.js"></script>
@@ -32,16 +34,33 @@
     <script src="./classes/sounds.class.js"></script>
     <script src="./classes/world.class.js"></script>
     <script src="./script/game.js"></script>
-    
+
 </head>
+
 <body onload="init()">
-    <h1>El pollo loco</h1>
+    <h1>El Pollo Loco</h1>
+    <div id="canvasContainer">
+        <canvas id="canvas" width="720" height="480"></canvas>
+        <div id="left">
+            <img src="./assets/menu/left.png" alt="">
+        </div>
+        <div id="right">
+            <img src="./assets/menu/right.png" alt="">
+        </div>
+        <div id="throw">
+            <img id="space" src="./assets/menu/SpacebarThrow.png" alt="">
+        </div>
+        <div id="jump">
+            <img src="./assets/menu/jump.png" alt="">
+        </div>
+    </div>
+    <div id="viewport">
+        <h2>Please Rotate your Device</h2>
+    </div>
+    <a href=#>Impressum</a>
 
-    <canvas id="canvas" width="720" height="480">
-
-
-    </canvas>
 
 
 </body>
+
 </html>

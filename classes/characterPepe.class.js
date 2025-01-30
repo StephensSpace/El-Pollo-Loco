@@ -55,6 +55,7 @@ class CharacterPepe extends MovableObject {
     frameInterval = 100;
     alive = true;
     firstThrow = true;
+    fall = false;
     lastThrowTime = 0;
     coinCounter = 0;
     bottleCounter = 10;
@@ -129,7 +130,9 @@ class CharacterPepe extends MovableObject {
                 collisionDetected = true;
                 this.hurt = true;
                 this.energy -= 0.5;
-                this.world.sounds.OuchSound.play()
+                if(SoundOn) {
+                    this.world.sounds.OuchSound.play();
+                    }
                 if (this.energy >= 10) {
                     this.animateHurt();
                 }
@@ -143,7 +146,9 @@ class CharacterPepe extends MovableObject {
             }
             if (this.energy >= 5) {
                 this.animateHurt();
-                this.world.sounds.OuchSound.play();
+                if(SoundOn) {
+                    this.world.sounds.OuchSound.play();
+                    }
             }
         }
         if (!collisionDetected) {
@@ -186,7 +191,9 @@ class CharacterPepe extends MovableObject {
     checkDeath() {
         if (this.energy <= 0 && this.alive) {       
             this.currentImageDeath = this.animatePepe(this.imagesDeath, this.currentImageDeath);
-            this.world.sounds.pepeDead.play();
+            if(SoundOn) {
+                this.world.sounds.pepeDead.play();
+                }
             if (!this.Lost && !this.timeoutStarted) {
                 this.timeoutStarted = true;           
                 setTimeout(() => {
@@ -265,7 +272,7 @@ class CharacterPepe extends MovableObject {
         const currentTime = Date.now();
         if (((this.keyboard.jump || this.fall) && !this.collisionY && this.alive) || this.world.level.endboss.dead) {
             this.soundWalking.pause();
-            if (currentTime - this.lastFrameTime >= this.frameIntervalJump) {
+            if (currentTime - this.lastFrameTime >= this.frameInterval) {
                 this.currentImageJump = this.animatePepe(this.imagesJump, this.currentImageJump);
             }
         }

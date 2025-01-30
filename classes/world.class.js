@@ -1,6 +1,5 @@
 class World {
-    keyboard; // Ohne das Keyboard als Parameter
-    statusbar;
+    keyboard; 
     character;
     level;
     canvas;
@@ -14,7 +13,6 @@ class World {
     selectedButtonIndex = 0;
     coinbar;
     running = true;
-
 
     constructor(canvas) {
         this.canvas = canvas;
@@ -30,72 +28,71 @@ class World {
             2170, 0, 690, 450)
         this.LostImage = new Statusbar('../assets/9_intro_outro_screens/game_over/game over.png',
             0, 0, 720, 480)
-        this.healthbar = new Statusbar(
-            '../assets/7_statusbars/1_statusbar/2_statusbar_health/green/100.png',
-            40, 420, 200, 50, this.character
-        );
-        this.salsabar = new Statusbar(
-            '../assets/7_statusbars/1_statusbar/3_statusbar_bottle/blue/20.png',
-            260, 420, 200, 50, this.character
-        );
-        this.coinbar = new Statusbar(
-            '../assets/7_statusbars/1_statusbar/1_statusbar_coin/orange/0.png',
-            480, 420, 200, 50, this.character
-        );
+        this.healthbar = new Statusbar('../assets/7_statusbars/1_statusbar/2_statusbar_health/green/100.png',
+            100, 410, 160, 50, this.character);
+        this.salsabar = new Statusbar('../assets/7_statusbars/1_statusbar/3_statusbar_bottle/blue/20.png',
+            280, 410, 160, 50, this.character);
+        this.coinbar = new Statusbar('../assets/7_statusbars/1_statusbar/1_statusbar_coin/orange/0.png',
+            460, 410, 160, 50, this.character);
         this.ednbossBar = new Statusbar('../assets/7_statusbars/2_statusbar_endboss/green/green100.png',
-            210, 20, 300, 50, this.character)
-
+            210, 20, 300, 50, this.character);
         this.selectedButtonIndex = 0;
         this.draw();
     }
 
     startAnimationSequence(bottle, animationArray, onComplete) {
         let frameCount = 0;
+        if(SoundOn) {
         this.sounds.bottleBreaking.play();
+        }
         const interval = setInterval(() => {
             bottle.animate(animationArray); // Animation ausführen
             frameCount++;
             bottle.speed = 0.0002;
             bottle.speedY = 0;
-            if (frameCount >= 6) { // Animation beendet
-                clearInterval(interval); // Intervall stoppen
-                onComplete(); // Kollision "abschließen"
+            if (frameCount >= 6) { 
+                clearInterval(interval); 
+                onComplete(); 
                 setTimeout(() => {
                     this.level.endboss.hurt = false;
                     this.character.Bottles = this.character.Bottles.filter(b => b !== bottle);
                 }, 500);
             }
-        }, 20); // Timing pro Frame
+        }, 20);
     }
 
     checkBottleCollision() {
         this.character.Bottles.forEach(bottle => {
-            if (!bottle.collisionDetected) {
-                for (let enemy of this.level.enemies) {
-                    if (enemy.isColliding(bottle)) {
-                        setTimeout(() => {
-                            bottle.collisionDetected = true;
-                            enemy.dead = true;
-                            this.sounds.chickenDead.play();
-                        }, 50);
-                        break;
-                    }
-                }
-                if (this.level.endboss.isColliding(bottle)) {
-                    setTimeout(() => {
-                        bottle.collisionDetected = true;
-                        this.level.endboss.energy -= 3.6;
-                        this.level.endboss.hurt = true;
-                        if (this.level.endboss.energy <= 0) {
-                            this.level.endboss.dead = true;
-                        }
-                    }, 100);
-                }
-                if (bottle.posY >= 360) {
-                    bottle.collisionDetected = true;
-                }
-            }
+            if (bottle.collisionDetected) return;
+            this.level.enemies.some(enemy => this.checkEnemyCollision(bottle, enemy));
+            this.checkEndbossCollision(bottle);
+            if (bottle.posY >= 360) bottle.collisionDetected = true;
         });
+    }
+    
+    checkEnemyCollision(bottle, enemy) {
+        if (enemy.isColliding(bottle)) {
+            setTimeout(() => {
+                bottle.collisionDetected = true;
+                enemy.dead = true;
+                if(SoundOn) {
+                    this.sounds.chickenDead.play();
+                    }
+            }, 50);
+            return true;
+        }
+        return false;
+    }
+    
+    checkEndbossCollision(bottle) {
+        if (this.level.endboss.isColliding(bottle)) {
+            setTimeout(() => {
+                bottle.collisionDetected = true;
+                this.level.endboss.energy -= 3.6;
+                this.level.endboss.hurt = true;
+                if (this.level.endboss.energy <= 0) this.level.endboss.dead = true;
+            }, 100);
+        }
     }
 
     checkCoinCollision() {
@@ -103,7 +100,9 @@ class World {
             if (this.character.isColliding(coin) && !coin.collisionDetected) {
                 coin.collisionDetected = true;
                 this.character.coinCounter += 5;
-                this.sounds.coinSound.play();
+                if(SoundOn) {
+                    this.sounds.coinSound.play();
+                    }
             }
         });
         this.level.coins = this.level.coins.filter(coin => !coin.collisionDetected);
@@ -114,19 +113,18 @@ class World {
             if (this.character.isColliding(salsa) && !salsa.collisionDetected) {
                 salsa.collisionDetected = true;
                 this.character.bottleCounter += 10;
-                this.sounds.bottle.play();
+                if(SoundOn) {
+                    this.sounds.bottle.play();
+                    }
             }
         });
         this.level.salsa = this.level.salsa.filter(salsa => !salsa.collisionDetected);
     }
 
-
     handleAnimationEnd(bottle) {
         bottle.collisionDetected = true;
 
     }
-
-    
 
     deleteDeadEnemies() {
         this.level.enemies.forEach(enemy => {
@@ -187,13 +185,17 @@ class World {
         this.character.checkCharacterPosX();
         this.checkAllCollisions();
         this.deleteDeadEnemies();
+        this.setStatusBars();      
+        this.level.coins.forEach(coin => coin.animate(coin.CoinImages));
+        this.level.salsa.forEach(salsa => salsa.animate(salsa.salsaImages));
+        this.drawObjectsToWorld();
+    }
+
+    setStatusBars() {
         this.ednbossBar.setBossHealth();
         this.coinbar.setCoin();
         this.healthbar.setHealth();
         this.salsabar.setSalsa();
-        this.level.coins.forEach(coin => coin.animate(coin.CoinImages));
-        this.level.salsa.forEach(salsa => salsa.animate(salsa.salsaImages));
-        this.drawObjectsToWorld();
     }
 
     checkPauseStatus() {
@@ -219,22 +221,28 @@ class World {
     }
 
     checkBottle() {
-        this.checkBottleCollision();
-        if (this.character.Bottles.length !== 0) {
-            this.character.Bottles.forEach(bottle => {
-                if (!bottle.collisionDetected) {
-                    bottle.applyGravityToBottle();
-                    bottle.bottleFly();
-                    bottle.animate(bottle.bottleFlying);
-                } else {
-                    if (!bottle.animationStarted) {
-                        this.startAnimationSequence(bottle, bottle.bottleSplash, () => {
-                            bottle.collisionDetected = true;
-                            bottle.animationStarted = true;
-
-                        });
-                    }
-                }
+        this.checkBottleCollision();  
+        if (this.character.Bottles.length === 0) return; 
+        this.character.Bottles.forEach(bottle => {
+            if (bottle.collisionDetected) {
+                this.handleBottleCollision(bottle);
+            } else {
+                this.handleFlyingBottle(bottle);
+            }
+        });
+    }
+    
+    handleFlyingBottle(bottle) {
+        bottle.applyGravityToBottle();
+        bottle.bottleFly();
+        bottle.animate(bottle.bottleFlying);
+    }
+    
+    handleBottleCollision(bottle) {
+        if (!bottle.animationStarted) {
+            this.startAnimationSequence(bottle, bottle.bottleSplash, () => {
+                bottle.collisionDetected = true;
+                bottle.animationStarted = true;
             });
         }
     }
@@ -250,17 +258,7 @@ class World {
         this.ctx.textAlign = 'center';
         this.ctx.fillText('Pause', 360, 160);
         this.ctx.font = '24px Comic Sans MS';
-        this.setButtons();
-    }
-
-    setButtons() {
-        this.keyboard.buttons.forEach((text, index) => {
-            const buttonX = 360;
-            const buttonY = 210 + index * 50;
-            this.ctx.fillStyle = index === this.keyboard.selectedButtonIndex ? 'red' : 'white';
-            this.ctx.textAlign = 'center';
-            this.ctx.fillText(text, buttonX, buttonY);
-        });
+        this.keyboard.setButtons();
     }
 
     updateSoundBtnText() {
@@ -289,15 +287,13 @@ class World {
         });
     }
 
-    drawObjectsToWorld() {
-        this.allArraysToDraw();
-        this.addToMap(this.level.endboss)
-        this.addToMap(this.character);
-
+    deadAnimationCheck() {
         if (this.level.endboss.deadAnimationDone) {
             this.addToMap(this.WonImage)
         }
-        this.ctx.translate(-this.cameraX, 0);
+    }
+
+    statusCheck() {
         if (this.keyboard.pause) {
             this.addPauseMenu();
         }
@@ -307,6 +303,9 @@ class World {
         if (!this.character.alive) {
             this.addToMap(this.LostImage)
         }
+    }
+
+    looseWinCheck() {
         if (this.level.endboss.Won || this.character.Lost) {
             this.addToMap(this.endMenu);
             this.addToMap(this.endMenu.Yes);
@@ -315,16 +314,29 @@ class World {
                 this.drawText(this.endMenu.winText);
             } else {
                 this.drawText(this.endMenu.loseText);
-
             }
             this.updateEndMenuButtonTextColor();
             this.endMenu.buttons.forEach(button => {
                 this.drawText(button.text);
             });
         }
+    }
+
+    addStatusbars() {
         this.addToMap(this.healthbar);
         this.addToMap(this.salsabar);
         this.addToMap(this.coinbar);
+    }
+
+    drawObjectsToWorld() {
+        this.allArraysToDraw();
+        this.addToMap(this.level.endboss);
+        this.addToMap(this.character);
+        this.deadAnimationCheck();
+        this.ctx.translate(-this.cameraX, 0);
+        this.statusCheck();
+        this.looseWinCheck();
+        this.addStatusbars();
         this.ctx.translate(this.cameraX, 0);
     }
 

@@ -1,11 +1,149 @@
+@font-face {
+    font-family: 'Comic_new';
+    font-style: normal;
+    font-weight: 600;
+    src: url(./fonts/Comic_Neue/ComicNeue-Bold.ttf) format('truetype');
+  }
+
+html {
+    height: 100%;
+}
+
 body {
     margin: 0;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center; 
     flex-direction: column;
+    background-color: brown;
+    color: gold;
+    font-family: 'Comic_new';
+    height: 100%;
+}
+
+a {
+    color: gold;
+    font-family: 'Comic_new';
+    margin-top: 10px;
+    text-decoration: overline;
+}
+
+a:hover {
+    color: white;
+    font-size: 18px;
+}
+
+
+h1 {
+    font-size: 98px;
+}
+
+#canvasContainer {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    max-width: 720px;
+    max-height: 480px;
+}
+
+img {
+    width: 30px;
+    height: 30px;
+}
+
+#space {
+    width: 80px;
+    height: 25px;
+}
+
+#throw {
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    border: solid white;
+    border-width: 0.3px;
+    width: fit-content;
+    height: fit-content;
+}
+
+#jump {
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    position: absolute;
+    bottom: 28px;
+    right: 0px;
+    border: solid white;
+    border-width: 0.3px;
+    width: 40px;
+    height: 35px;
+}
+
+
+#left {
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    border: solid white;
+    border-width: 0.3px;
+    width: 40px;
+    height: 35px;
+}
+
+#right {
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    position: absolute;
+    bottom: 36px;
+    left: 0px;
+    border: solid white;
+    border-width: 0.3px;
+    width: 40px;
+    height: 35px;
 }
 
 canvas {
     background-color: black;
+    display: block;
+}
+
+@media only screen and (max-width: 720px) {
+    canvas {
+        width: 100%;
+    }
+
+    h1 {
+        font-size: 72px;
+    }
+}
+
+@media only screen and (max-width: 392px) {
+    h1 {
+        font-size: 58px;
+    }
+}
+
+@media only screen and (max-height: 480px) {
+    canvas {
+        height: 100%;
+    }
+
+    h1 {
+        display: none;
+    }
+
+    a {
+        display: none;
+    }
+    
 }

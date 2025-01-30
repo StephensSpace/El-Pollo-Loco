@@ -112,7 +112,9 @@ class Endboss extends MovableObject {
                     this.currentImageWalking = this.animateEndboss(this.endbossWalking, this.currentImageWalking);
                 } else {
                     this.currentImageHurt = this.animateEndboss(this.endbossHurt, this.currentImageHurt);
-                    this.world.sounds.endbossHurt.play();
+                    if(SoundOn) {
+                        this.world.sounds.endbossHurt.play();
+                        }
                 }
             }
             if (this.posX < this.targetY && !this.attackDone) {
@@ -145,7 +147,9 @@ class Endboss extends MovableObject {
         } else if (this.dead) {
             if (!this.deadAnimationDone) {
                 this.currentImageAttack = this.animateEndboss(this.endbossDead, this.currentImageAttack);
-                this.world.sounds.endbossDead.play();
+                if(SoundOn) {
+                    this.world.sounds.endbossDead.play();
+                    }
                 if (!this.deadAnimationStarted) {
                     setTimeout(() => {
                         this.deadAnimationDone = true;

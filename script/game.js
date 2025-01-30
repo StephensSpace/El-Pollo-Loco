@@ -67,3 +67,15 @@ function clearCanvas() {
     let ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);  // Bildschirm löschen
 }
+
+function checkViewportRatio() {
+    const viewportElement = document.getElementById("viewport");
+
+    if (viewportElement) {
+        viewportElement.style.display = window.innerHeight > window.innerWidth ? "block" : "none";
+    }
+}
+
+checkViewportRatio();
+
+window.addEventListener("resize", checkViewportRatio);
