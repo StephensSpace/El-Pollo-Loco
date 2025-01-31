@@ -12,7 +12,7 @@ class Flame extends MovableObject {
 
 
     constructor( posX, posY, width = 80, height = 60) {
-        super().loadImage('../assets/Flames.png')
+        super().loadImage('assets/Flames.png')
         this.posX = posX;
         this.posY = posY;
         this.width = width;

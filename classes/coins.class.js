@@ -1,7 +1,7 @@
 class Coins extends MovableObject {
     CoinImages = [
-        '../assets/8_coin/coin_1.png',
-        '../assets/8_coin/coin_2.png'
+        'assets/8_coin/coin_1.png',
+        'assets/8_coin/coin_2.png'
     ]
 
     images = {};
@@ -12,7 +12,7 @@ class Coins extends MovableObject {
     
 
     constructor(posX, posY = 90, width = 90, height = 90) {
-        super().loadImage('../assets/8_coin/coin_1.png');
+        super().loadImage('assets/8_coin/coin_1.png');
         this.loadImages(this.CoinImages);
         this.posX = posX;
         this.posY = posY;

@@ -10,7 +10,7 @@ class Startscreen extends DrawAbleObject {
       // Variable zur Steuerung der Animation
 
     constructor(canvas) {
-        super().loadImage('../assets/9_intro_outro_screens/start/startscreen_1.png');
+        super().loadImage('assets/9_intro_outro_screens/start/startscreen_1.png');
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
         this.menu = new StartMenu(this.ctx);  // Menü als separates Objekt übergeben

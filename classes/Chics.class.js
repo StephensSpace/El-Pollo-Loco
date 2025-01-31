@@ -1,8 +1,8 @@
 class Chic extends MovableObject {
     imagesWalking = [
-        '../assets/3_enemies_chicken/chicken_small/1_walk/1_w.png',
-        '../assets/3_enemies_chicken/chicken_small/1_walk/2_w.png',
-        '../assets/3_enemies_chicken/chicken_small/1_walk/3_w.png'
+        'assets/3_enemies_chicken/chicken_small/1_walk/1_w.png',
+        'assets/3_enemies_chicken/chicken_small/1_walk/2_w.png',
+        'assets/3_enemies_chicken/chicken_small/1_walk/3_w.png'
     ]
     images = {};
     currentImage = 0;
@@ -17,7 +17,7 @@ class Chic extends MovableObject {
     offsetHeight = 10;
 
     constructor(posX = 200 + Math.random() * 500, posY = 380, width = 40, height = 40) {
-        super().loadImage('../assets/3_enemies_chicken/chicken_small/1_walk/1_w.png')
+        super().loadImage('assets/3_enemies_chicken/chicken_small/1_walk/1_w.png')
         this.loadImages(this.imagesWalking);
         this.posX = posX;
         this.posY = posY;

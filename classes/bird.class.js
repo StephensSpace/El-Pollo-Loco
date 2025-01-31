@@ -1,12 +1,12 @@
 class Bird extends MovableObject {
 
     imagesWalking = [
-        '../assets/11_bird/frame_1.png',
-        '../assets/11_bird/frame_2.png',
-        '../assets/11_bird/frame_3.png',
-        '../assets/11_bird/frame_4.png',
-        '../assets/11_bird/frame_5.png',
-        '../assets/11_bird/frame_6.png',
+        'assets/11_bird/frame_1.png',
+        'assets/11_bird/frame_2.png',
+        'assets/11_bird/frame_3.png',
+        'assets/11_bird/frame_4.png',
+        'assets/11_bird/frame_5.png',
+        'assets/11_bird/frame_6.png',
     ]
     images = {};
     lastFrameTime = 0;
@@ -22,7 +22,7 @@ class Bird extends MovableObject {
 
 
     constructor( posX, posY, width = 80, height = 80) {
-        super().loadImage('../assets/11_bird/frame_1.png')
+        super().loadImage('assets/11_bird/frame_1.png')
         this.loadImages(this.imagesWalking);
         this.posX = posX;
         this.posY = posY;

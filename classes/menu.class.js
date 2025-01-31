@@ -1,18 +1,18 @@
 class StartMenu extends DrawAbleObject {
 
-    startBtn = new MenuButton('../assets/menu/startBtn.png', 275, 179, 180, 50);
-    soundBtn = new MenuButton('../assets/menu/menuBtn.png', 275, 229, 180, 50);
-    controllsBtn = new MenuButton('../assets/menu/menuBtn.png', 275, 279, 180, 50);
-    leftCursor = new MenuButton('../assets/menu/left.png', 292.5, 284, 45, 45);
-    upCursor = new MenuButton('../assets/menu/jump.png', 337.5, 244, 45, 45);
-    rightCursor = new MenuButton('../assets/menu/right.png', 382.5, 284, 45, 45);
-    spaceBar = new MenuButton('../assets/menu/Spacebar.png', 283, 202, 155, 40);
-    backBtn = new MenuButton('../assets/menu/backBtn.png', 420, 130, 40, 40);
+    startBtn = new MenuButton('assets/menu/startBtn.png', 275, 179, 180, 50);
+    soundBtn = new MenuButton('assets/menu/menuBtn.png', 275, 229, 180, 50);
+    controllsBtn = new MenuButton('assets/menu/menuBtn.png', 275, 279, 180, 50);
+    leftCursor = new MenuButton('assets/menu/left.png', 292.5, 284, 45, 45);
+    upCursor = new MenuButton('assets/menu/jump.png', 337.5, 244, 45, 45);
+    rightCursor = new MenuButton('assets/menu/right.png', 382.5, 284, 45, 45);
+    spaceBar = new MenuButton('assets/menu/Spacebar.png', 283, 202, 155, 40);
+    backBtn = new MenuButton('assets/menu/bacBtn.png', 420, 130, 40, 40);
     startscreen;
     controls = false;
 
     constructor(ctx) {
-        super().loadImage('../assets/menu/menuBackground.png');
+        super().loadImage('assets/menu/menuBackground.png');
         this.ctx = ctx;
         this.buttons = ['Start', 'Sound On', 'Controls'];
         this.selectedButtonIndex = 0;
@@ -109,7 +109,7 @@ class StartMenu extends DrawAbleObject {
     }
 
     removeEventListeners() {
-        if (this.isMobileDevice()) {
+        if (isMobileDevice()) {
             canvas.removeEventListener('touchstart', this.handleTouchStart);
         } else {
             window.removeEventListener('keydown', this.handleKeyDown);

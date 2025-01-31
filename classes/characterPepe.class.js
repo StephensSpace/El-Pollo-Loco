@@ -1,11 +1,11 @@
 class CharacterPepe extends MovableObject {
     imagesIdle = [
-        '../assets/2_character_pepe/1_idle/idle/I-1.png',
-        '../assets/2_character_pepe/1_idle/idle/I-2.png',
-        '../assets/2_character_pepe/1_idle/idle/I-3.png',
-        '../assets/2_character_pepe/1_idle/idle/I-4.png',
-        '../assets/2_character_pepe/1_idle/idle/I-5.png',
-        '../assets/2_character_pepe/1_idle/idle/I-6.png'
+        'assets/2_character_pepe/1_idle/idle/I-1.png',
+        'assets/2_character_pepe/1_idle/idle/I-2.png',
+        'assets/2_character_pepe/1_idle/idle/I-3.png',
+        'assets/2_character_pepe/1_idle/idle/I-4.png',
+        'assets/2_character_pepe/1_idle/idle/I-5.png',
+        'assets/2_character_pepe/1_idle/idle/I-6.png'
     ]
 
     imagesWalk = [
@@ -18,34 +18,34 @@ class CharacterPepe extends MovableObject {
     ]
 
     imagesJump = [
-        '../assets/2_character_pepe/3_jump/J-31.png',
-        '../assets/2_character_pepe/3_jump/J-32.png',
-        '../assets/2_character_pepe/3_jump/J-33.png',
-        '../assets/2_character_pepe/3_jump/J-34.png',
-        '../assets/2_character_pepe/3_jump/J-35.png',
-        '../assets/2_character_pepe/3_jump/J-36.png',
-        '../assets/2_character_pepe/3_jump/J-37.png',
-        '../assets/2_character_pepe/3_jump/J-38.png',
-        '../assets/2_character_pepe/3_jump/J-39.png',
+        'assets/2_character_pepe/3_jump/J-31.png',
+        'assets/2_character_pepe/3_jump/J-32.png',
+        'assets/2_character_pepe/3_jump/J-33.png',
+        'assets/2_character_pepe/3_jump/J-34.png',
+        'assets/2_character_pepe/3_jump/J-35.png',
+        'assets/2_character_pepe/3_jump/J-36.png',
+        'assets/2_character_pepe/3_jump/J-37.png',
+        'assets/2_character_pepe/3_jump/J-38.png',
+        'assets/2_character_pepe/3_jump/J-39.png',
     ];
 
     imagesDeath = [
-        '../assets/2_character_pepe/5_dead/D-51.png',
-        '../assets/2_character_pepe/5_dead/D-52.png',
-        '../assets/2_character_pepe/5_dead/D-53.png',
-        '../assets/2_character_pepe/5_dead/D-54.png',
-        '../assets/2_character_pepe/5_dead/D-55.png',
-        '../assets/2_character_pepe/5_dead/D-56.png',
-        '../assets/2_character_pepe/5_dead/D-57.png',
+        'assets/2_character_pepe/5_dead/D-51.png',
+        'assets/2_character_pepe/5_dead/D-52.png',
+        'assets/2_character_pepe/5_dead/D-53.png',
+        'assets/2_character_pepe/5_dead/D-54.png',
+        'assets/2_character_pepe/5_dead/D-55.png',
+        'assets/2_character_pepe/5_dead/D-56.png',
+        'assets/2_character_pepe/5_dead/D-57.png',
     ]
 
     imagesHurt = [
-        '../assets/2_character_pepe/4_hurt/H-41.png',
-        '../assets/2_character_pepe/4_hurt/H-42.png',
-        '../assets/2_character_pepe/4_hurt/H-43.png',
+        'assets/2_character_pepe/4_hurt/H-41.png',
+        'assets/2_character_pepe/4_hurt/H-42.png',
+        'assets/2_character_pepe/4_hurt/H-43.png',
     ]
 
-    soundWalking = new Audio('../audio/pepeRunning.wav')
+    soundWalking = new Audio('audio/pepeRunning.wav')
     images = {};
     world;
     inAir = false;
@@ -69,7 +69,7 @@ class CharacterPepe extends MovableObject {
 
 
     constructor(keyboard, world) {
-        super().loadImage('../assets/2_character_pepe/1_idle/idle/I-1.png');
+        super().loadImage('assets/2_character_pepe/1_idle/idle/I-1.png');
         this.loadImages(this.imagesIdle);
         this.loadImages(this.imagesWalk);
         this.loadImages(this.imagesJump);
@@ -77,7 +77,7 @@ class CharacterPepe extends MovableObject {
         this.loadImages(this.imagesHurt);
         this.Lost = false;
         this.world = world;
-        this.posX = 2000;
+        this.posX = 20;
         this.offsetY = 110;
         this.offsetX = 57;
         this.offsetLength = 120;
@@ -329,7 +329,8 @@ class CharacterPepe extends MovableObject {
                 this.world.cameraX -= 0.1;
             } else if (!this.world.cameraDriveDone) {
                 this.world.cameraX = -2157;
-                this.posX = 2310;
+                this.posX = 2150;
+                this.posY = 200;
                 this.world.cameraDriveDone = true;
                 clearInterval(smoothScroll);  // Stoppe das Bewegungstimer
             }

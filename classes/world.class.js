@@ -24,17 +24,17 @@ class World {
         this.cameraDriveDone = false;
         this.angerDone = false;
         this.startHurtAnimation = false;
-        this.WonImage = new Statusbar('../assets/9_intro_outro_screens/win/won_2.png',
+        this.WonImage = new Statusbar('assets/9_intro_outro_screens/win/won_2.png',
             2170, 0, 690, 450)
-        this.LostImage = new Statusbar('../assets/9_intro_outro_screens/game_over/game over.png',
+        this.LostImage = new Statusbar('assets/9_intro_outro_screens/game_over/game over.png',
             0, 0, 720, 480)
-        this.healthbar = new Statusbar('../assets/7_statusbars/1_statusbar/2_statusbar_health/green/100.png',
+        this.healthbar = new Statusbar('assets/7_statusbars/1_statusbar/2_statusbar_health/green/100.png',
             100, 410, 160, 50, this.character);
-        this.salsabar = new Statusbar('../assets/7_statusbars/1_statusbar/3_statusbar_bottle/blue/20.png',
+        this.salsabar = new Statusbar('assets/7_statusbars/1_statusbar/3_statusbar_bottle/blue/20.png',
             280, 410, 160, 50, this.character);
-        this.coinbar = new Statusbar('../assets/7_statusbars/1_statusbar/1_statusbar_coin/orange/0.png',
+        this.coinbar = new Statusbar('assets/7_statusbars/1_statusbar/1_statusbar_coin/orange/0.png',
             460, 410, 160, 50, this.character);
-        this.ednbossBar = new Statusbar('../assets/7_statusbars/2_statusbar_endboss/green/green100.png',
+        this.ednbossBar = new Statusbar('assets/7_statusbars/2_statusbar_endboss/green/green100.png',
             210, 20, 300, 50, this.character);
         this.selectedButtonIndex = 0;
         this.draw();
@@ -46,7 +46,7 @@ class World {
         this.sounds.bottleBreaking.play();
         }
         const interval = setInterval(() => {
-            bottle.animate(animationArray); // Animation ausführen
+            bottle.animate(animationArray); 
             frameCount++;
             bottle.speed = 0.0002;
             bottle.speedY = 0;
@@ -253,8 +253,8 @@ class World {
         this.pauseMenu.startBtn.draw(this.ctx)
         this.pauseMenu.soundBtn.draw(this.ctx);
         this.pauseMenu.controllsBtn.draw(this.ctx);
-        this.ctx.font = '28px Comic Sans MS';  // Comic Sans MS als Schriftart
-        this.ctx.fillStyle = 'gold';  // Goldene Farbe
+        this.ctx.font = '28px Comic Sans MS';  
+        this.ctx.fillStyle = 'gold';  
         this.ctx.textAlign = 'center';
         this.ctx.fillText('Pause', 360, 160);
         this.ctx.font = '24px Comic Sans MS';

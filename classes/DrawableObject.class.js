@@ -31,7 +31,7 @@ class DrawAbleObject {
         if (this.checkInstance()) {
             ctx.beginPath();
             ctx.lineWidth = "0";
-            ctx.strokeStyle = "";
+            ctx.strokeStyle = "transparent";
             ctx.rect(this.posX + this.offsetX, this.posY + this.offsetY, this.width - this.offsetLength, this.height - this.offsetHeight);
             ctx.stroke();
         }

@@ -35,9 +35,9 @@ class MovableObject extends DrawAbleObject{
         setInterval(() => {
             if (this.dead && !this.deadAnimationDone) {
                 if (this instanceof Chicken) {
-                    this.loadImage('../assets/3_enemies_chicken/chicken_normal/2_dead/dead.png')
+                    this.loadImage('assets/3_enemies_chicken/chicken_normal/2_dead/dead.png')
                 } else if (this instanceof Chic) {
-                    this.loadImage('../assets/3_enemies_chicken/chicken_small/2_dead/dead.png')
+                    this.loadImage('assets/3_enemies_chicken/chicken_small/2_dead/dead.png')
                 }
                 this.deadAnimationDone = true;
             }
