@@ -1,38 +1,33 @@
 let canvas;
 let world;
-let SoundOn = true; 
+let SoundOn = true;
 
 function init() {
-    deleteEndScreen();
-    deleteWorld();
+    if (world) { 
+        if (world.endMenu) world.endMenu = null;
+        if (world.pauseMenu) world.pauseMenu = null;
+        deleteWorld();
+    }
     canvas = document.getElementById('canvas');
-    startScreen = new Startscreen(canvas); 
-    
-
-   
-
+    startScreen = new Startscreen(canvas);
 }
+
 function Gameinit() {
     deleteStartScreen();
-    deleteEndScreen();
-    deleteWorld(); 
+    if (world) { 
+        if (world.endMenu) world.endMenu = null;
+        if (world.pauseMenu) world.pauseMenu = null;
+        deleteWorld();
+    }
     world = new World(canvas);
 }
 
 function deleteStartScreen() {
     if (startScreen) {
-        startScreen.stop();  
-        startScreen = null;  
+        startScreen.stop();
+        startScreen = null;
         let ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);  
-    }
-}
-
-function deleteEndScreen() {
-    if (world && world.endMenu) { 
-        world.endMenu = null; 
-        let ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);  
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 }
 

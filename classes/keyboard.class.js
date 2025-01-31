@@ -4,14 +4,14 @@ class Keyboard {
   jump = false;
   throw = false;
   pause = false;
+  world;
   selectedButtonIndex = 0;
   buttons = ['Continue', 'Sound On', 'Exit'];
   endMenuButtons = ['Yes', 'No'];
   selectedEndMenuButtonIndex = 0;
 
-  constructor(ctx, world) {
+  constructor(ctx) {
     this.ctx = ctx;
-    this.world = world;
     this.controls = [
       { id: 'left', prop: 'links' },
       { id: 'right', prop: 'rechts' },
@@ -109,7 +109,7 @@ class Keyboard {
 
   addPauseMenuListeners() {
     if (isMobileDevice()) {
-      canvas.addEventListener('touchstart', this.handleTouchStart, { passive: false });  // Touch-Listener für mobile Geräte
+      canvas.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });  // Touch-Listener für mobile Geräte
     } else {
       window.addEventListener('keydown', this.handleKeyDown);
     }
@@ -117,7 +117,7 @@ class Keyboard {
 
   removePauseMenuListeners() {
     if (isMobileDevice()) {
-      canvas.removeEventListener('touchstart', this.handleTouchStart);
+      canvas.removeEventListener('touchstart', this.handleTouchStart.bind(this));
     } else {
       window.removeEventListener('keydown', this.handleKeyDown);
     }
@@ -125,13 +125,20 @@ class Keyboard {
 
   handleTouchStart(e) {
     e.preventDefault();  // Verhindert das Standardverhalten
+    let clickedButton
     let touch = e.touches[0];  // Nimmt das erste Touch-Ereignis
     let x = touch.clientX;
     let y = touch.clientY;
-
-    let clickedButton = this.getTouchedButton(x, y);
-    if (clickedButton) {
-      this.handleTouchButtonClick(clickedButton);
+    if (this.world.character.Lost || this.world.level.endboss.Won) {
+      clickedButton = this.getTouchedButtonEndMenu(x, y);
+      if (clickedButton) {
+        this.handleTouchButtonClick(clickedButton);
+      }
+    } else {
+      clickedButton = this.getTouchedButton(x, y);
+      if (clickedButton) {
+        this.handleTouchButtonClick(clickedButton);
+      }
     }
   }
 
@@ -149,6 +156,7 @@ class Keyboard {
       } else if (clickedButton === 'Exit') {
         this.world.running = false;
         this.removePauseMenuListeners();
+        this.pause = false;
         init();
       }
     } else {
@@ -160,21 +168,49 @@ class Keyboard {
     }
   }
 
+
   getTouchedButton(x, y) {
     const buttonAreas = [
-        { text: 'Continue', x: 360, y: 210, width: 200, height: 40 },
-        { text: 'Sound On', x: 360, y: 260, width: 200, height: 40 },
-        { text: 'Exit', x: 360, y: 310, width: 200, height: 40 },
-        { text: 'Yes', x: 360, y: 210, width: 200, height: 40 },  // end menu buttons
-        { text: 'No', x: 360, y: 260, width: 200, height: 40 },
+      { text: 'Continue', x: 275, y: 179, width: 180, height: 50 },
+      { text: 'Sound On', x: 275, y: 239, width: 180, height: 50 },
+      { text: 'Exit', x: 275, y: 299, width: 180, height: 50 }
     ];
     for (let button of buttonAreas) {
-        if (x >= button.x - button.width / 2 && x <= button.x + button.width / 2 &&
-            y >= button.y - button.height / 2 && y <= button.y + button.height / 2) {
-            return button.text;
-        }
-    } return null;
-}
+
+      if (
+        x >= button.x - 30 &&
+        x <= button.x + button.width &&
+        y >= button.y - 60 &&
+        y <= button.y - 60 + button.height
+      ) {
+        return button.text;
+      }
+    }
+    return null;
+  }
+
+  getTouchedButtonEndMenu(x, y) {
+    const buttonAreas2 = [
+      { text: 'Yes', x: 270, y: 185, width: 60, height: 40 },  // Endmenü-Buttons
+      { text: 'No', x: 375, y: 185, width: 60, height: 40 }
+    ];
+  
+    let clickedButton = null;  // Variable, um den gefundenen Button zu speichern
+    buttonAreas2.forEach(button2 => {
+      console.log(button2); // Debugging, um sicherzustellen, dass die Werte korrekt sind
+      if (
+        x >= button2.x &&
+        x <= button2.x + button2.width &&
+        y >= button2.y &&
+        y <= button2.y + button2.height
+      ) {
+        console.log("Button wurde berührt:", button2.text);
+        clickedButton = button2.text;  // Speichern des Texts des berührten Buttons
+      }
+    });
+    return clickedButton;  // Rückgabe des Texts des berührten Buttons (oder null, wenn keiner berührt wurde)
+  }
+
 
   handleKeyDown(e) {
     if (!this.pause) {
@@ -236,7 +272,7 @@ class Keyboard {
   setButtons() {
     this.buttons.forEach((text, index) => {
       const buttonX = 360;
-      const buttonY = 210 + index * 50;
+      const buttonY = 210 + index * 60;
       this.world.ctx.fillStyle = index === this.selectedButtonIndex ? 'red' : 'white';
       this.world.ctx.textAlign = 'center';
       this.world.ctx.fillText(text, buttonX, buttonY);

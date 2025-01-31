@@ -1,13 +1,13 @@
 class StartMenu extends DrawAbleObject {
 
     startBtn = new MenuButton('assets/menu/startBtn.png', 275, 179, 180, 50);
-    soundBtn = new MenuButton('assets/menu/menuBtn.png', 275, 229, 180, 50);
-    controllsBtn = new MenuButton('assets/menu/menuBtn.png', 275, 279, 180, 50);
+    soundBtn = new MenuButton('assets/menu/menuBtn.png', 275, 239, 180, 50);
+    controllsBtn = new MenuButton('assets/menu/menuBtn.png', 275, 299, 180, 50);
     leftCursor = new MenuButton('assets/menu/left.png', 292.5, 284, 45, 45);
     upCursor = new MenuButton('assets/menu/jump.png', 337.5, 244, 45, 45);
     rightCursor = new MenuButton('assets/menu/right.png', 382.5, 284, 45, 45);
     spaceBar = new MenuButton('assets/menu/Spacebar.png', 283, 202, 155, 40);
-    backBtn = new MenuButton('assets/menu/bacBtn.png', 420, 130, 40, 40);
+    backBtn = new MenuButton('assets/menu/backBtn.png', 420, 130, 40, 40);
     startscreen;
     controls = false;
 
@@ -49,7 +49,7 @@ class StartMenu extends DrawAbleObject {
         this.ctx.font = '24px Comic Sans MS';
         this.buttons.forEach((text, index) => {
             const buttonX = menuX + menuWidth / 2;
-            const buttonY = menuY + 120 + index * 50;
+            const buttonY = menuY + 120 + index * 60;
             this.ctx.fillStyle = index === this.selectedButtonIndex ? 'red' : 'white';
             this.ctx.fillText(text, buttonX, buttonY);
         });
@@ -131,13 +131,24 @@ class StartMenu extends DrawAbleObject {
     getClickedButton(x, y) {
         let buttons = [this.startBtn, this.soundBtn, this.controllsBtn, this.backBtn];
         for (let button of buttons) {
-            if (
-                x >= button.x &&
-                x <= button.x + button.width &&
-                y >= button.y &&
-                y <= button.y + button.height
-            ) {
-                return button;
+            if (this.controls && button === this.backBtn) {
+                if (
+                    x >= button.posX &&
+                    x <= button.posX + button.width - 60&&
+                    y >= button.posY &&
+                    y <= button.posY + button.height
+                ) {
+                    return button;
+                }
+            } else if (button !== this.backBtn){
+                if (
+                    x >= button.posX &&
+                    x <= button.posX + button.width - 30 &&
+                    y >= button.posY - 60 &&
+                    y <= button.posY - 60 + button.height
+                ) {
+                    return button;
+                }
             }
         }
         return null;
@@ -152,7 +163,6 @@ class StartMenu extends DrawAbleObject {
         } else if (e.key === 'Enter') {
             this.handleButtonClick();
         } else if (e.key === 'f' || e.key === 'F') {  // Überprüfe beide Varianten (mit und ohne Shift)
-            console.log('pressed');
             canvas.requestFullscreen();
         }
     }
@@ -170,8 +180,8 @@ class StartMenu extends DrawAbleObject {
             } else if (selectedButton === 'Sound On' || selectedButton === 'Sound Off' || button === this.soundBtn) {
                 this.toggleSound();
                 this.updateSoundBtnText();
-            } else if (selectedButton === 'Controls' || button === this.controllsBtn) {
-                this.controls = true;
+            } else if (selectedButton === 'Controls' || button === this.controllsBtn || button === this.backBtn) {
+                this.controls = !this.controls;
             }
         }
     }

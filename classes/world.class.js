@@ -17,7 +17,8 @@ class World {
     constructor(canvas) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
-        this.keyboard = new Keyboard(this.ctx, this);
+        this.keyboard = new Keyboard(this.ctx);
+        this.keyboard.world = this;
         this.level = level1;
         this.level.endboss.world = this;
         this.character = new CharacterPepe(this.keyboard, this);
