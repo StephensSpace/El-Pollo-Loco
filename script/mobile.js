@@ -16,6 +16,8 @@ function ChooseControls() {
         document.getElementById('right').style.display = 'none';
         document.getElementById('jump').style.display = 'none';
         document.getElementById('throw').style.display = 'none';
+        document.getElementById('pause').style.display = 'none';
+        document.getElementById('fullscreen').style.display = 'none';
     }
 }
 

@@ -10,6 +10,7 @@ class StartMenu extends DrawAbleObject {
     backBtn = new MenuButton('../assets/menu/backBtn.png', 420, 130, 40, 40);
     startscreen;
     controls = false;
+
     constructor(ctx) {
         super().loadImage('../assets/menu/menuBackground.png');
         this.ctx = ctx;
@@ -17,6 +18,7 @@ class StartMenu extends DrawAbleObject {
         this.selectedButtonIndex = 0;
         this.updateSoundBtnText()
         this.handleKeyDown = this.handleKeyDown.bind(this);
+        this.handleTouchStart = this.handleTouchStart.bind(this);
         this.addEventListeners();
     }
 
@@ -99,14 +101,47 @@ class StartMenu extends DrawAbleObject {
     }
 
     addEventListeners() {
-        window.addEventListener('keydown', this.handleKeyDown);
+        if (isMobileDevice()) {
+            canvas.addEventListener('touchstart', this.handleTouchStart);
+        } else {
+            window.addEventListener('keydown', this.handleKeyDown);
+        }
     }
 
     removeEventListeners() {
-        window.removeEventListener('keydown', this.handleKeyDown);
+        if (this.isMobileDevice()) {
+            canvas.removeEventListener('touchstart', this.handleTouchStart);
+        } else {
+            window.removeEventListener('keydown', this.handleKeyDown);
+        }
     }
 
+    handleTouchStart(e) {
+        e.preventDefault();
+        let touch = e.touches[0];
+        let x = touch.clientX;
+        let y = touch.clientY;
 
+        let clickedButton = this.getClickedButton(x, y);
+        if (clickedButton) {
+            this.handleButtonClick(clickedButton);
+        }
+    }
+
+    getClickedButton(x, y) {
+        let buttons = [this.startBtn, this.soundBtn, this.controllsBtn, this.backBtn];
+        for (let button of buttons) {
+            if (
+                x >= button.x &&
+                x <= button.x + button.width &&
+                y >= button.y &&
+                y <= button.y + button.height
+            ) {
+                return button;
+            }
+        }
+        return null;
+    }
 
     handleKeyDown(e) {
         if (e.key === 'ArrowUp') {
@@ -122,19 +157,20 @@ class StartMenu extends DrawAbleObject {
         }
     }
 
-    handleButtonClick() {
+    handleButtonClick(button = null) {
         if (this.controls) {
-            this.controls = false;  // Zurück zum Hauptmenü
+            this.controls = false; // Zurück zum Hauptmenü
         } else {
-            const selectedButton = this.buttons[this.selectedButtonIndex];
-            if (selectedButton === 'Start') {
+            let selectedButton = button ? button : this.buttons[this.selectedButtonIndex];
+
+            if (selectedButton === 'Start' || button === this.startBtn) {
                 this.stop();
-                this.removeEventListeners();  // Event-Listener vor Gameinit entfernen
+                this.removeEventListeners();
                 Gameinit();
-            } else if (selectedButton === 'Sound On' || selectedButton === 'Sound Off') {
+            } else if (selectedButton === 'Sound On' || selectedButton === 'Sound Off' || button === this.soundBtn) {
                 this.toggleSound();
                 this.updateSoundBtnText();
-            } else if (selectedButton === 'Controls') {
+            } else if (selectedButton === 'Controls' || button === this.controllsBtn) {
                 this.controls = true;
             }
         }

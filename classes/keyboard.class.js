@@ -12,6 +12,12 @@ class Keyboard {
   constructor(ctx, world) {
     this.ctx = ctx;
     this.world = world;
+    this.controls = [
+      { id: 'left', prop: 'links' },
+      { id: 'right', prop: 'rechts' },
+      { id: 'jump', prop: 'jump' },
+      { id: 'throw', prop: 'throw' }
+    ];
     this.keyDownHandler = this.keyDownHandler.bind(this);
     this.keyUpHandler = this.keyUpHandler.bind(this);
     this.handleKeyDown = this.handleKeyDown.bind(this);
@@ -19,8 +25,30 @@ class Keyboard {
   }
 
   addIngameListener() {
-    window.addEventListener("keydown", this.keyDownHandler);
-    window.addEventListener("keyup", this.keyUpHandler);
+    if (isMobileDevice()) {
+      this.addTouchControls();
+      this.addSpecialControls();
+    } else {
+      window.addEventListener("keydown", this.keyDownHandler.bind(this));
+      window.addEventListener("keyup", this.keyUpHandler.bind(this));
+    }
+  }
+
+  addTouchControls() {
+    this.controls.forEach(control => {
+      const btn = document.getElementById(control.id);
+      btn.addEventListener("touchstart", () => this[control.prop] = true);
+      btn.addEventListener("touchend", () => this[control.prop] = false);
+    });
+  }
+
+  addSpecialControls() {
+    document.getElementById('pause').addEventListener("touchstart", () => {
+      this.pause = !this.pause;
+      this.toggleListeners();
+    });
+
+    document.getElementById('fullscreen').addEventListener("touchstart", () => canvas.requestFullscreen());
   }
 
   removeIngameListener() {
@@ -30,22 +58,22 @@ class Keyboard {
 
   keyDownHandler(event) {
     switch (event.code) {
-      case "ArrowLeft": // Linke Pfeiltaste
+      case "ArrowLeft":
         this.links = true;
         break;
-      case "ArrowRight": // Rechte Pfeiltaste
+      case "ArrowRight":
         this.rechts = true;
         break;
-      case "ArrowUp": // Sprungtaste
+      case "ArrowUp":
         this.jump = true;
         break;
-      case "Space": // Werfen
+      case "Space":
         this.throw = true;
         break;
-      case "KeyF": // Werfen
+      case "KeyF":
         canvas.requestFullscreen();
         break;
-      case "Escape": // Pause umschalten
+      case "Escape":
         this.pause = !this.pause;
         this.toggleListeners();
         break;
@@ -80,12 +108,73 @@ class Keyboard {
   }
 
   addPauseMenuListeners() {
-    window.addEventListener('keydown', this.handleKeyDown);
+    if (isMobileDevice()) {
+      canvas.addEventListener('touchstart', this.handleTouchStart, { passive: false });  // Touch-Listener für mobile Geräte
+    } else {
+      window.addEventListener('keydown', this.handleKeyDown);
+    }
   }
 
   removePauseMenuListeners() {
-    window.removeEventListener('keydown', this.handleKeyDown);
+    if (isMobileDevice()) {
+      canvas.removeEventListener('touchstart', this.handleTouchStart);
+    } else {
+      window.removeEventListener('keydown', this.handleKeyDown);
+    }
   }
+
+  handleTouchStart(e) {
+    e.preventDefault();  // Verhindert das Standardverhalten
+    let touch = e.touches[0];  // Nimmt das erste Touch-Ereignis
+    let x = touch.clientX;
+    let y = touch.clientY;
+
+    let clickedButton = this.getTouchedButton(x, y);
+    if (clickedButton) {
+      this.handleTouchButtonClick(clickedButton);
+    }
+  }
+
+  handleTouchButtonClick(clickedButton) {
+    if (this.pause) {
+      if (clickedButton === 'Continue') {
+        this.pause = false;
+        this.removePauseMenuListeners();
+        this.addIngameListener();
+      } else if (clickedButton === 'Sound On' || clickedButton === 'Sound Off') {
+        this.toggleSounds();
+        this.world.sounds.playChickenSound();
+        this.world.sounds.playBackgroundSound();
+        this.world.updateSoundBtnText();
+      } else if (clickedButton === 'Exit') {
+        this.world.running = false;
+        this.removePauseMenuListeners();
+        init();
+      }
+    } else {
+      if (clickedButton === 'Yes') {
+        Gameinit();
+      } else if (clickedButton === 'No') {
+        init();
+      }
+    }
+  }
+
+  getTouchedButton(x, y) {
+    const buttonAreas = [
+        { text: 'Continue', x: 360, y: 210, width: 200, height: 40 },
+        { text: 'Sound On', x: 360, y: 260, width: 200, height: 40 },
+        { text: 'Exit', x: 360, y: 310, width: 200, height: 40 },
+        { text: 'Yes', x: 360, y: 210, width: 200, height: 40 },  // end menu buttons
+        { text: 'No', x: 360, y: 260, width: 200, height: 40 },
+    ];
+    for (let button of buttonAreas) {
+        if (x >= button.x - button.width / 2 && x <= button.x + button.width / 2 &&
+            y >= button.y - button.height / 2 && y <= button.y + button.height / 2) {
+            return button.text;
+        }
+    } return null;
+}
 
   handleKeyDown(e) {
     if (!this.pause) {
@@ -153,5 +242,6 @@ class Keyboard {
       this.world.ctx.fillText(text, buttonX, buttonY);
     });
   }
+
 
 }
