@@ -27,25 +27,20 @@ class StartMenu extends DrawAbleObject {
         const menuHeight = 300;
         const menuX = (this.ctx.canvas.width - menuWidth) / 2;
         const menuY = (this.ctx.canvas.height - menuHeight) / 2;
-    
         this.ctx.drawImage(this.img, menuX, menuY, menuWidth, menuHeight);
-    
         if (!this.controls) {
             this.drawMainMenu(menuX, menuY, menuWidth);
         } else {
             this.drawControlsMenu(menuY);
         }
-    
         this.drawNavigationBox();
     }
-    
+
     drawMainMenu(menuX, menuY, menuWidth) {
         this.startBtn.draw(this.ctx);
         this.soundBtn.draw(this.ctx);
         this.controllsBtn.draw(this.ctx);
-    
         this.drawTitleText('El Pollo Loco', this.ctx.canvas.width / 2, menuY + 70, 28, 'gold');
-    
         this.ctx.font = '24px Comic Sans MS';
         this.buttons.forEach((text, index) => {
             const buttonX = menuX + menuWidth / 2;
@@ -54,45 +49,40 @@ class StartMenu extends DrawAbleObject {
             this.ctx.fillText(text, buttonX, buttonY);
         });
     }
-    
+
     drawControlsMenu(menuY) {
         this.drawTitleText('Controls', this.ctx.canvas.width / 2 - 5, menuY + 70, 30, 'gold');
-    
         this.leftCursor.draw(this.ctx);
         this.upCursor.draw(this.ctx);
         this.rightCursor.draw(this.ctx);
         this.spaceBar.draw(this.ctx);
         this.backBtn.draw(this.ctx);
-    
         this.drawControlText('Pause - ESC', 360.5, 194);
         this.drawControlText('Go left', 316, 341);
         this.drawControlText('Jump', 362, 304);
         this.drawControlText('Go right', 405, 341);
-    
         this.drawControlText('Throw - Space', 360.5, 224, 'white');
     }
-    
+
     drawNavigationBox() {
         const boxX = 500;
         const boxY = 20;
         const boxWidth = 180;
         const boxHeight = 100;
-    
         this.ctx.fillStyle = 'transparent';
         this.ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
-    
         this.drawTitleText(`Arrow Keys to Navigate`, boxX + boxWidth / 2, boxY + 25, 20, 'gold');
         this.drawTitleText('Enter    -   Confirm/Back', boxX + boxWidth / 2, boxY + 50, 20, 'gold');
         this.drawTitleText('F        -   Fullscreen', boxX + boxWidth / 2, boxY + 75, 20, 'gold');
     }
-    
+
     drawTitleText(text, x, y, fontSize, color) {
         this.ctx.font = `${fontSize}px Comic Sans MS`;
         this.ctx.fillStyle = color;
         this.ctx.textAlign = 'center';
         this.ctx.fillText(text, x, y);
     }
-    
+
     drawControlText(text, x, y, color = 'gold') {
         this.ctx.font = '17px Comic Sans MS';
         this.ctx.fillStyle = color;
@@ -129,29 +119,27 @@ class StartMenu extends DrawAbleObject {
     }
 
     getClickedButton(x, y) {
+        const { adjustedX, adjustedY } = this.getAdjustedCoordinates(x, y);
         let buttons = [this.startBtn, this.soundBtn, this.controllsBtn, this.backBtn];
+
         for (let button of buttons) {
             if (this.controls && button === this.backBtn) {
-                if (
-                    x >= button.posX &&
-                    x <= button.posX + button.width - 60&&
-                    y >= button.posY &&
-                    y <= button.posY + button.height
-                ) {
+                if (this.adjustCalculationOne(adjustedX, adjustedY, button)) {
                     return button;
                 }
-            } else if (button !== this.backBtn){
-                if (
-                    x >= button.posX &&
-                    x <= button.posX + button.width - 30 &&
-                    y >= button.posY - 60 &&
-                    y <= button.posY - 60 + button.height
-                ) {
+            } else if (button !== this.backBtn) {
+                if (this.adjustCalculationOne(adjustedX, adjustedY, button)) {
                     return button;
                 }
             }
-        }
-        return null;
+        } return null;
+    }
+
+    adjustCalculationOne(adjustedX, adjustedY, button) {
+        return (adjustedX >= button.posX &&
+            adjustedX <= button.posX + button.width &&
+            adjustedY >= button.posY &&
+            adjustedY <= button.posY + button.height)
     }
 
     handleKeyDown(e) {
@@ -162,28 +150,46 @@ class StartMenu extends DrawAbleObject {
             this.selectedButtonIndex = (this.selectedButtonIndex + 1) % this.buttons.length;
         } else if (e.key === 'Enter') {
             this.handleButtonClick();
-        } else if (e.key === 'f' || e.key === 'F') {  // Überprüfe beide Varianten (mit und ohne Shift)
+        } else if (e.key === 'f' || e.key === 'F') {
             canvas.requestFullscreen();
         }
     }
 
+    getAdjustedCoordinates(x, y) {
+        const canvas = document.querySelector('canvas');
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        return {
+            adjustedX: (x - rect.left) * scaleX,
+            adjustedY: (y - rect.top) * scaleY
+        };
+    }
+
     handleButtonClick(button = null) {
         if (this.controls) {
-            this.controls = false; // Zurück zum Hauptmenü
+            this.controls = false;
         } else {
             let selectedButton = button ? button : this.buttons[this.selectedButtonIndex];
-
             if (selectedButton === 'Start' || button === this.startBtn) {
-                this.stop();
-                this.removeEventListeners();
-                Gameinit();
+                this.caseStart();
             } else if (selectedButton === 'Sound On' || selectedButton === 'Sound Off' || button === this.soundBtn) {
-                this.toggleSound();
-                this.updateSoundBtnText();
+                this.caseSound();
             } else if (selectedButton === 'Controls' || button === this.controllsBtn || button === this.backBtn) {
                 this.controls = !this.controls;
             }
         }
+    }
+
+    caseStart() {
+        this.stop();
+        this.removeEventListeners();
+        Gameinit();
+    }
+
+    caseSound() {
+        this.toggleSound();
+        this.updateSoundBtnText();
     }
 
     toggleSound() {

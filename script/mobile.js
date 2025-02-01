@@ -21,4 +21,19 @@ function ChooseControls() {
     }
 }
 
+function toggleFullscreen() {
+    const container = document.getElementById('canvasContainer');
+
+    if (!document.fullscreenElement) {
+        container.requestFullscreen();
+        container.classList.add('fullscreen');
+    } else {
+        document.exitFullscreen();
+        container.classList.remove('fullscreen');
+    }
+}
+
+// Fullscreen aktivieren durch Klick auf den Button
+document.getElementById('fullscreen').addEventListener('click', toggleFullscreen);
+
 ChooseControls();

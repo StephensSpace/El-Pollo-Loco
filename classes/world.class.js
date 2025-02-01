@@ -1,5 +1,5 @@
 class World {
-    keyboard; 
+    keyboard;
     character;
     level;
     canvas;
@@ -17,11 +17,12 @@ class World {
     constructor(canvas) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
+        this.level = level1;
         this.keyboard = new Keyboard(this.ctx);
         this.keyboard.world = this;
-        this.level = level1;
         this.level.endboss.world = this;
         this.character = new CharacterPepe(this.keyboard, this);
+        this.keyboard.world.character = this.character;
         this.cameraDriveDone = false;
         this.angerDone = false;
         this.startHurtAnimation = false;
@@ -43,23 +44,31 @@ class World {
 
     startAnimationSequence(bottle, animationArray, onComplete) {
         let frameCount = 0;
-        if(SoundOn) {
-        this.sounds.bottleBreaking.play();
+        if (SoundOn) {
+            this.sounds.bottleBreaking.play();
         }
+        this.runAnimationInterval(bottle, animationArray, frameCount, onComplete);
+    }
+    
+    runAnimationInterval(bottle, animationArray, frameCount, onComplete) {
         const interval = setInterval(() => {
-            bottle.animate(animationArray); 
+            bottle.animate(animationArray);
             frameCount++;
             bottle.speed = 0.0002;
             bottle.speedY = 0;
-            if (frameCount >= 6) { 
-                clearInterval(interval); 
-                onComplete(); 
-                setTimeout(() => {
-                    this.level.endboss.hurt = false;
-                    this.character.Bottles = this.character.Bottles.filter(b => b !== bottle);
-                }, 500);
+            if (frameCount >= 6) {
+                clearInterval(interval);
+                onComplete();
+                this.cleanupAfterAnimation(bottle);
             }
         }, 20);
+    }
+    
+    cleanupAfterAnimation(bottle) {
+        setTimeout(() => {
+            this.level.endboss.hurt = false;
+            this.character.Bottles = this.character.Bottles.filter(b => b !== bottle);
+        }, 500);
     }
 
     checkBottleCollision() {
@@ -70,21 +79,21 @@ class World {
             if (bottle.posY >= 360) bottle.collisionDetected = true;
         });
     }
-    
+
     checkEnemyCollision(bottle, enemy) {
         if (enemy.isColliding(bottle)) {
             setTimeout(() => {
                 bottle.collisionDetected = true;
                 enemy.dead = true;
-                if(SoundOn) {
+                if (SoundOn) {
                     this.sounds.chickenDead.play();
-                    }
+                }
             }, 50);
             return true;
         }
         return false;
     }
-    
+
     checkEndbossCollision(bottle) {
         if (this.level.endboss.isColliding(bottle)) {
             setTimeout(() => {
@@ -101,9 +110,9 @@ class World {
             if (this.character.isColliding(coin) && !coin.collisionDetected) {
                 coin.collisionDetected = true;
                 this.character.coinCounter += 5;
-                if(SoundOn) {
+                if (SoundOn) {
                     this.sounds.coinSound.play();
-                    }
+                }
             }
         });
         this.level.coins = this.level.coins.filter(coin => !coin.collisionDetected);
@@ -114,9 +123,9 @@ class World {
             if (this.character.isColliding(salsa) && !salsa.collisionDetected) {
                 salsa.collisionDetected = true;
                 this.character.bottleCounter += 10;
-                if(SoundOn) {
+                if (SoundOn) {
                     this.sounds.bottle.play();
-                    }
+                }
             }
         });
         this.level.salsa = this.level.salsa.filter(salsa => !salsa.collisionDetected);
@@ -186,7 +195,7 @@ class World {
         this.character.checkCharacterPosX();
         this.checkAllCollisions();
         this.deleteDeadEnemies();
-        this.setStatusBars();      
+        this.setStatusBars();
         this.level.coins.forEach(coin => coin.animate(coin.CoinImages));
         this.level.salsa.forEach(salsa => salsa.animate(salsa.salsaImages));
         this.drawObjectsToWorld();
@@ -222,8 +231,8 @@ class World {
     }
 
     checkBottle() {
-        this.checkBottleCollision();  
-        if (this.character.Bottles.length === 0) return; 
+        this.checkBottleCollision();
+        if (this.character.Bottles.length === 0) return;
         this.character.Bottles.forEach(bottle => {
             if (bottle.collisionDetected) {
                 this.handleBottleCollision(bottle);
@@ -232,13 +241,13 @@ class World {
             }
         });
     }
-    
+
     handleFlyingBottle(bottle) {
         bottle.applyGravityToBottle();
         bottle.bottleFly();
         bottle.animate(bottle.bottleFlying);
     }
-    
+
     handleBottleCollision(bottle) {
         if (!bottle.animationStarted) {
             this.startAnimationSequence(bottle, bottle.bottleSplash, () => {
@@ -254,8 +263,8 @@ class World {
         this.pauseMenu.startBtn.draw(this.ctx)
         this.pauseMenu.soundBtn.draw(this.ctx);
         this.pauseMenu.controllsBtn.draw(this.ctx);
-        this.ctx.font = '28px Comic Sans MS';  
-        this.ctx.fillStyle = 'gold';  
+        this.ctx.font = '28px Comic Sans MS';
+        this.ctx.fillStyle = 'gold';
         this.ctx.textAlign = 'center';
         this.ctx.fillText('Pause', 360, 160);
         this.ctx.font = '24px Comic Sans MS';
@@ -279,7 +288,7 @@ class World {
     updateEndMenuButtonTextColor() {
         const selectedButton = this.endMenu.buttons[this.keyboard.selectedEndMenuButtonIndex];
         if (selectedButton) {
-            selectedButton.text.color = 'red';  
+            selectedButton.text.color = 'red';
         }
         this.endMenu.buttons.forEach((button, index) => {
             if (index !== this.keyboard.selectedEndMenuButtonIndex) {

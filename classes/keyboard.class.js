@@ -37,8 +37,14 @@ class Keyboard {
   addTouchControls() {
     this.controls.forEach(control => {
       const btn = document.getElementById(control.id);
-      btn.addEventListener("touchstart", () => this[control.prop] = true);
-      btn.addEventListener("touchend", () => this[control.prop] = false);
+      btn.addEventListener("touchstart", (event) => {
+        event.preventDefault();
+        this[control.prop] = true;
+      });
+      btn.addEventListener("touchend", (event) => {
+        event.preventDefault();
+        this[control.prop] = false;
+      });
     });
   }
 
@@ -124,119 +130,154 @@ class Keyboard {
   }
 
   handleTouchStart(e) {
-    e.preventDefault();  // Verhindert das Standardverhalten
-    let clickedButton
-    let touch = e.touches[0];  // Nimmt das erste Touch-Ereignis
+    e.preventDefault();
+    let touch = e.touches[0];
     let x = touch.clientX;
     let y = touch.clientY;
     if (this.world.character.Lost || this.world.level.endboss.Won) {
-      clickedButton = this.getTouchedButtonEndMenu(x, y);
-      if (clickedButton) {
-        this.handleTouchButtonClick(clickedButton);
-      }
+      this.getEndMenuTouchedBtn(x, y)
     } else {
-      clickedButton = this.getTouchedButton(x, y);
-      if (clickedButton) {
-        this.handleTouchButtonClick(clickedButton);
-      }
+      this.getMenuTouchedBtn(x, y)
+    }
+  }
+
+  getEndMenuTouchedBtn(x, y) {
+    const clickedButton = this.getTouchedButtonEndMenu(x, y);
+    if (clickedButton) {
+      this.handleTouchButtonClick(clickedButton);
+    }
+  }
+
+  getMenuTouchedBtn(x, y) {
+    const clickedButton = this.getTouchedButton(x, y);
+    if (clickedButton) {
+      this.handleTouchButtonClick(clickedButton);
     }
   }
 
   handleTouchButtonClick(clickedButton) {
     if (this.pause) {
-      if (clickedButton === 'Continue') {
-        this.pause = false;
-        this.removePauseMenuListeners();
-        this.addIngameListener();
-      } else if (clickedButton === 'Sound On' || clickedButton === 'Sound Off') {
-        this.toggleSounds();
-        this.world.sounds.playChickenSound();
-        this.world.sounds.playBackgroundSound();
-        this.world.updateSoundBtnText();
-      } else if (clickedButton === 'Exit') {
-        this.world.running = false;
-        this.removePauseMenuListeners();
-        this.pause = false;
-        init();
-      }
+      this.pauseMenuClicks(clickedButton)
     } else {
-      if (clickedButton === 'Yes') {
-        Gameinit();
-      } else if (clickedButton === 'No') {
-        init();
-      }
+      this.endMenuClicks(clickedButton)
     }
   }
 
+  pauseMenuClicks(clickedButton) {
+    if (clickedButton === 'Continue') {
+      this.caseContinue()
+    } else if (clickedButton === 'Sound On' || clickedButton === 'Sound Off') {
+      this.caseSound()
+    } else if (clickedButton === 'Exit') {
+      this.caseExit()
+    }
+  }
+
+  endMenuClicks(clickedButton) {
+    if (clickedButton === 'Yes') {
+      Gameinit();
+    } else if (clickedButton === 'No') {
+      init();
+    }
+  }
+
+  caseContinue() {
+    this.pause = false;
+    this.removePauseMenuListeners();
+    this.addIngameListener();
+  }
+
+  caseSound() {
+    this.toggleSounds();
+    this.world.sounds.playChickenSound();
+    this.world.sounds.playBackgroundSound();
+    this.world.updateSoundBtnText();
+  }
+
+  caseExit() {
+    this.world.running = false;
+    this.removePauseMenuListeners();
+    this.pause = false;
+    init();
+  }
 
   getTouchedButton(x, y) {
+    const { adjustedX, adjustedY } = this.getAdjustedCoordinates(x, y);
+
     const buttonAreas = [
       { text: 'Continue', x: 275, y: 179, width: 180, height: 50 },
       { text: 'Sound On', x: 275, y: 239, width: 180, height: 50 },
       { text: 'Exit', x: 275, y: 299, width: 180, height: 50 }
     ];
-    for (let button of buttonAreas) {
 
-      if (
-        x >= button.x - 30 &&
-        x <= button.x + button.width &&
-        y >= button.y - 60 &&
-        y <= button.y - 60 + button.height
-      ) {
-        return button.text;
-      }
-    }
-    return null;
+    return buttonAreas.find(button =>
+      adjustedX >= button.x &&
+      adjustedX <= button.x + button.width &&
+      adjustedY >= button.y &&
+      adjustedY <= button.y + button.height
+    )?.text || null;
   }
 
   getTouchedButtonEndMenu(x, y) {
+    const { adjustedX, adjustedY } = this.getAdjustedCoordinates(x, y);
+
     const buttonAreas2 = [
-      { text: 'Yes', x: 270, y: 185, width: 60, height: 40 },  // Endmenü-Buttons
-      { text: 'No', x: 375, y: 185, width: 60, height: 40 }
+      { text: 'Yes', x: 285, y: 229, width: 60, height: 40 },
+      { text: 'No', x: 375, y: 229, width: 60, height: 40 }
     ];
-  
-    let clickedButton = null;  // Variable, um den gefundenen Button zu speichern
-    buttonAreas2.forEach(button2 => {
-      console.log(button2); // Debugging, um sicherzustellen, dass die Werte korrekt sind
-      if (
-        x >= button2.x &&
-        x <= button2.x + button2.width &&
-        y >= button2.y &&
-        y <= button2.y + button2.height
-      ) {
-        console.log("Button wurde berührt:", button2.text);
-        clickedButton = button2.text;  // Speichern des Texts des berührten Buttons
-      }
-    });
-    return clickedButton;  // Rückgabe des Texts des berührten Buttons (oder null, wenn keiner berührt wurde)
+
+    return buttonAreas2.find(button2 =>
+      adjustedX >= button2.x &&
+      adjustedX <= button2.x + button2.width &&
+      adjustedY >= button2.y &&
+      adjustedY <= button2.y + button2.height
+    )?.text || null;
   }
 
+  getAdjustedCoordinates(x, y) {
+    const canvas = document.querySelector('canvas');
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    return {
+      adjustedX: (x - rect.left) * scaleX,
+      adjustedY: (y - rect.top) * scaleY
+    };
+  }
 
   handleKeyDown(e) {
     if (!this.pause) {
-      if (e.key === 'ArrowLeft') {
-        this.selectedEndMenuButtonIndex =
-          (this.selectedEndMenuButtonIndex - 1 + this.endMenuButtons.length) % this.endMenuButtons.length;
-      } else if (e.key === 'ArrowRight') {
-        this.selectedEndMenuButtonIndex = (this.selectedEndMenuButtonIndex + 1) % this.endMenuButtons.length;
-      } else if (e.key === 'Enter') {
-        this.handleEndMenuButtonClick();
-      } else if (e.key === 'f' || e.key === 'F') {
-        canvas.requestFullscreen();
-      }
+      this.notPaused(e);
     } else {
-      if (e.key === 'ArrowUp') {
-        this.selectedButtonIndex =
-          (this.selectedButtonIndex - 1 + this.buttons.length) % this.buttons.length;
-      } else if (e.key === 'ArrowDown') {
-        this.selectedButtonIndex = (this.selectedButtonIndex + 1) % this.buttons.length;
-      } else if (e.key === 'Enter') {
-        this.handleButtonClick();
-      } else if (e.key === 'f' || e.key === 'F') {
-        canvas.requestFullscreen();
-      }
+      this.paused(e)
     }
   }
+
+  notPaused(e) {
+    if (e.key === 'ArrowLeft') {
+      this.selectedEndMenuButtonIndex =
+        (this.selectedEndMenuButtonIndex - 1 + this.endMenuButtons.length) % this.endMenuButtons.length;
+    } else if (e.key === 'ArrowRight') {
+      this.selectedEndMenuButtonIndex = (this.selectedEndMenuButtonIndex + 1) % this.endMenuButtons.length;
+    } else if (e.key === 'Enter') {
+      this.handleEndMenuButtonClick();
+    } else if (e.key === 'f' || e.key === 'F') {
+      canvas.requestFullscreen();
+    }
+  }
+
+  paused(e) {
+    if (e.key === 'ArrowUp') {
+      this.selectedButtonIndex =
+        (this.selectedButtonIndex - 1 + this.buttons.length) % this.buttons.length;
+    } else if (e.key === 'ArrowDown') {
+      this.selectedButtonIndex = (this.selectedButtonIndex + 1) % this.buttons.length;
+    } else if (e.key === 'Enter') {
+      this.handleButtonClick();
+    } else if (e.key === 'f' || e.key === 'F') {
+      canvas.requestFullscreen();
+    }
+  } 
 
   handleEndMenuButtonClick() {
     const selectedButton = this.endMenuButtons[this.selectedEndMenuButtonIndex];
@@ -250,18 +291,11 @@ class Keyboard {
   handleButtonClick() {
     const selectedButton = this.buttons[this.selectedButtonIndex];
     if (selectedButton === 'Continue') {
-      this.pause = false;
-      this.removePauseMenuListeners();
-      this.addIngameListener();
+      this.caseContinue();
     } else if (selectedButton === 'Sound On' || selectedButton === 'Sound Off') {
-      this.toggleSounds();
-      this.world.sounds.playChickenSound();
-      this.world.sounds.playBackgroundSound();
-      this.world.updateSoundBtnText();
+      this.caseSound();
     } else if (selectedButton === 'Exit') {
-      this.world.running = false;
-      this.removePauseMenuListeners();
-      init();
+      this.caseExit();
     }
   }
 

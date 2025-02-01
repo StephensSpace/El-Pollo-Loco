@@ -111,7 +111,6 @@ class CharacterPepe extends MovableObject {
     checkCollisionsBlock() {
         this.world.level.rocks.forEach(rock => {
             this.isCollidingBlock(rock);
-
             if (this.Bottles.length > 0) {
                 this.Bottles.forEach(bottle => {
                     bottle.isCollidingBlock(rock, bottle);
@@ -128,33 +127,45 @@ class CharacterPepe extends MovableObject {
         this.world.level.enemies.forEach(enemy => {
             if (this.isColliding(enemy) && this.energy > 0 && !enemy.dead) {
                 collisionDetected = true;
-                this.hurt = true;
-                this.energy -= 0.5;
-                if(SoundOn) {
-                    this.world.sounds.OuchSound.play();
-                    }
-                if (this.energy >= 10) {
-                    this.animateHurt();
-                }
+                this.handleEnemyCollision();
             }
         });
         if (this.isColliding(this.world.level.endboss)) {
             collisionDetected = true;
-            this.hurt = true;
-            if (this.energy >= 0 && !this.world.level.endboss.dead) {
-                this.energy -= 0.8;
-            }
-            if (this.energy >= 5) {
-                this.animateHurt();
-                if(SoundOn) {
-                    this.world.sounds.OuchSound.play();
-                    }
-            }
+            this.handleEndbossCollision();
         }
         if (!collisionDetected) {
-            this.hurt = false;
-            this.world.sounds.OuchSound.pause()
+            this.handleNoCollision();
         }
+    }
+    
+    handleEnemyCollision() {
+        this.hurt = true;
+        this.energy -= 0.5;
+        if (SoundOn) {
+            this.world.sounds.OuchSound.play();
+        }
+        if (this.energy >= 10) {
+            this.animateHurt();
+        }
+    }
+    
+    handleEndbossCollision() {
+        this.hurt = true;
+        if (this.energy >= 0 && !this.world.level.endboss.dead) {
+            this.energy -= 0.8;
+        }
+        if (this.energy >= 5) {
+            this.animateHurt();
+            if (SoundOn) {
+                this.world.sounds.OuchSound.play();
+            }
+        }
+    }
+    
+    handleNoCollision() {
+        this.hurt = false;
+        this.world.sounds.OuchSound.pause();
     }
 
     animateIdle() {
@@ -175,17 +186,17 @@ class CharacterPepe extends MovableObject {
     animatePepe(array, imageCounter) {
         const currentTime = Date.now();
         if (currentTime - this.lastFrameTime >= this.frameInterval) {
-            let path = array[imageCounter]; // Direktes Zugreifen auf das Array mit dem Counter
-            if (path) { // Sicherstellen, dass das Bild existiert
+            let path = array[imageCounter]; 
+            if (path) { 
                 this.img = this.images[path];
-                imageCounter++; // Hochzählen
+                imageCounter++; 
             }
-            if (imageCounter >= array.length) { // Rücksetzen, wenn das Ende erreicht ist
+            if (imageCounter >= array.length) { 
                 imageCounter = 0;
             }
             this.lastFrameTime = currentTime;
         }
-        return imageCounter; // Den neuen Wert des Counters zurückgeben
+        return imageCounter; 
     }
 
     checkDeath() {
@@ -277,8 +288,6 @@ class CharacterPepe extends MovableObject {
             }
         }
     }
-
-
 
     walkRight() {
         this.otherDirection = false;
