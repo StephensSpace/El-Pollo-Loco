@@ -29,7 +29,5 @@ class EndMenu extends DrawAbleObject {
         this.buttons = [this.Yes, this.No];
         this.Yes.text = { text: 'Yes', color: 'red', font: '20px Comic Sans MS', posX: 315, posY: 255 };
         this.No.text = { text: 'No', color: 'white', font: '20px Comic Sans MS', posX: 405, posY: 255 };
-    }
- 
-    
+    } 
 }

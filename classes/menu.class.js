@@ -17,6 +17,8 @@ class StartMenu extends DrawAbleObject {
         this.buttons = ['Start', 'Sound On', 'Controls'];
         this.selectedButtonIndex = 0;
         this.updateSoundBtnText()
+        this.handleMouseMove = this.handleMouseMove.bind(this);
+        this.handleMouseClick = this.handleMouseClick.bind(this);
         this.handleKeyDown = this.handleKeyDown.bind(this);
         this.handleTouchStart = this.handleTouchStart.bind(this);
         this.addEventListeners();
@@ -95,27 +97,53 @@ class StartMenu extends DrawAbleObject {
             canvas.addEventListener('touchstart', this.handleTouchStart);
         } else {
             window.addEventListener('keydown', this.handleKeyDown);
+            canvas.addEventListener('mousedown', this.handleMouseClick);
+            canvas.addEventListener('mousemove', this.handleMouseMove);
         }
     }
-
+    
     removeEventListeners() {
         if (isMobileDevice()) {
             canvas.removeEventListener('touchstart', this.handleTouchStart);
         } else {
             window.removeEventListener('keydown', this.handleKeyDown);
+            canvas.removeEventListener('mousedown', this.handleMouseClick);
+            canvas.removeEventListener('mousemove', this.handleMouseMove);
+        }
+    }
+
+    handleMouseMove(e) {
+        let hoveredButton = this.getClickedButton(e.clientX, e.clientY);
+        
+        if (hoveredButton) {
+            // Vergleiche mit der tatsächlichen Instanz des Buttons
+            if (hoveredButton === this.startBtn) {
+                this.selectedButtonIndex = 0;
+            } else if (hoveredButton === this.soundBtn) {
+                this.selectedButtonIndex = 1;
+            } else if (hoveredButton === this.controllsBtn) {
+                this.selectedButtonIndex = 2;
+            } else if (hoveredButton === this.backBtn) {
+                this.selectedButtonIndex = 3;
+            }
+
         }
     }
 
     handleTouchStart(e) {
         e.preventDefault();
-        let touch = e.touches[0];
+        let touch = e.touches ? e.touches[0] : e; // Falls Maus-Event, nehme direkt `e`
         let x = touch.clientX;
         let y = touch.clientY;
-
+    
         let clickedButton = this.getClickedButton(x, y);
         if (clickedButton) {
             this.handleButtonClick(clickedButton);
         }
+    }
+
+    handleMouseClick(e) {
+        this.handleTouchStart(e);
     }
 
     getClickedButton(x, y) {
@@ -151,7 +179,7 @@ class StartMenu extends DrawAbleObject {
         } else if (e.key === 'Enter') {
             this.handleButtonClick();
         } else if (e.key === 'f' || e.key === 'F') {
-            canvas.requestFullscreen();
+            document.fullscreenElement ? document.exitFullscreen() : canvas.requestFullscreen();
         }
     }
 

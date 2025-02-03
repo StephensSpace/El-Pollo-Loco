@@ -45,6 +45,19 @@ class CharacterPepe extends MovableObject {
         'assets/2_character_pepe/4_hurt/H-43.png',
     ]
 
+    imagesLongIdle = [
+        'assets/2_character_pepe/1_idle/long_idle/I-11.png',
+        'assets/2_character_pepe/1_idle/long_idle/I-12.png',
+        'assets/2_character_pepe/1_idle/long_idle/I-13.png',
+        'assets/2_character_pepe/1_idle/long_idle/I-14.png',
+        'assets/2_character_pepe/1_idle/long_idle/I-15.png',
+        'assets/2_character_pepe/1_idle/long_idle/I-16.png',
+        'assets/2_character_pepe/1_idle/long_idle/I-17.png',
+        'assets/2_character_pepe/1_idle/long_idle/I-18.png',
+        'assets/2_character_pepe/1_idle/long_idle/I-19.png',
+        'assets/2_character_pepe/1_idle/long_idle/I-20.png'
+    ]
+
     soundWalking = new Audio('audio/pepeRunning.wav')
     images = {};
     world;
@@ -65,8 +78,7 @@ class CharacterPepe extends MovableObject {
     currentImageJump = 0;
     currentImageDeath = 0;
     currentImageHurt = 0;
-
-
+    currentImageLongIdle = 0;
 
     constructor(keyboard, world) {
         super().loadImage('assets/2_character_pepe/1_idle/idle/I-1.png');
@@ -75,6 +87,7 @@ class CharacterPepe extends MovableObject {
         this.loadImages(this.imagesJump);
         this.loadImages(this.imagesDeath);
         this.loadImages(this.imagesHurt);
+        this.loadImages(this.imagesLongIdle);
         this.Lost = false;
         this.world = world;
         this.posX = 20;
@@ -84,7 +97,6 @@ class CharacterPepe extends MovableObject {
         this.offsetHeight = 122;
         this.keyboard = keyboard
         this.timeoutStarted = false;
-
     }
 
     checkCharacterPosX() {
@@ -171,9 +183,33 @@ class CharacterPepe extends MovableObject {
     animateIdle() {
         if (this.alive && !this.hurt && !this.fall) {
             if (!this.keyboard.rechts && !this.keyboard.links && !this.keyboard.jump) {
-                if (SoundOn) { this.soundWalking.pause(); }
-                this.currentImageIdle = this.animatePepe(this.imagesIdle, this.currentImageIdle);
+                this.setIdleTimer();
+                if (!this.longIdleActivated) {
+                    this.currentImageIdle = this.animatePepe(this.imagesIdle, this.currentImageIdle);
+                } else {
+                    this.currentImageLongIdle = this.animatePepe(this.imagesLongIdle, this.currentImageLongIdle);
+                }
+            } else {
+                this.clearIdleTimer();
             }
+        }
+    }
+
+    setIdleTimer() {
+        if (!this.longIdleTimeoutStarted) {
+            this.longIdleTimeoutStarted = true;
+            this.longIdleTimer = setTimeout(() => {
+                // Setze das Flag für Long-Idle nach 10 Sekunden
+                this.longIdleActivated = true;
+            }, 10000);
+        }
+    }
+
+    clearIdleTimer() {
+        if (this.longIdleTimeoutStarted) {
+            clearTimeout(this.longIdleTimer);
+            this.longIdleTimeoutStarted = false;
+            this.longIdleActivated = false;
         }
     }
 
@@ -348,6 +384,5 @@ class CharacterPepe extends MovableObject {
 
     jump() {
         this.speedY = 5.8;
-
     }
 }

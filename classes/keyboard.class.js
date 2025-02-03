@@ -21,6 +21,8 @@ class Keyboard {
     this.keyDownHandler = this.keyDownHandler.bind(this);
     this.keyUpHandler = this.keyUpHandler.bind(this);
     this.handleKeyDown = this.handleKeyDown.bind(this);
+    this.handleMouseDown = this.handleMouseDown.bind(this)
+    this.handleMouseMove = this.handleMouseMove.bind(this)
     this.addIngameListener();
   }
 
@@ -28,6 +30,8 @@ class Keyboard {
     if (isMobileDevice()) {
       this.addTouchControls();
       this.addSpecialControls();
+      window.addEventListener("keydown", this.keyDownHandler.bind(this));
+      window.addEventListener("keyup", this.keyUpHandler.bind(this));
     } else {
       window.addEventListener("keydown", this.keyDownHandler.bind(this));
       window.addEventListener("keyup", this.keyUpHandler.bind(this));
@@ -54,12 +58,65 @@ class Keyboard {
       this.toggleListeners();
     });
 
-    document.getElementById('fullscreen').addEventListener("touchstart", () => canvas.requestFullscreen());
+    document.getElementById('fullscreen').addEventListener("touchstart", () => toggleFullscreen());
   }
 
   removeIngameListener() {
     window.removeEventListener("keydown", this.keyDownHandler);
     window.removeEventListener("keyup", this.keyUpHandler);
+  }
+
+  handleMouseDown(e) {
+    let x = e.clientX;
+    let y = e.clientY;
+    if (this.pause) {
+      this.getMenuTouchedBtn(x, y);
+    } else {
+      this.getEndMenuTouchedBtn(x, y);
+    }
+  }
+
+  handleMouseMove(e) {
+    const { adjustedX, adjustedY } = this.getAdjustedCoordinates(e.clientX, e.clientY);
+    if (this.pause) {
+      const hoveredButtonIndex = this.getPauseMenuHoveredButtonIndex(adjustedX, adjustedY);
+      if (hoveredButtonIndex !== this.selectedButtonIndex) {
+        this.selectedButtonIndex = hoveredButtonIndex;
+        this.setButtons(); 
+      }
+    } else {
+      const hoveredButtonIndex = this.getEndMenuHoveredButtonIndex(adjustedX, adjustedY);    
+      if (hoveredButtonIndex !== this.selectedEndMenuButtonIndex) {
+        this.selectedEndMenuButtonIndex = hoveredButtonIndex;
+      }
+    }
+  }
+  
+  getEndMenuHoveredButtonIndex(x, y) {
+    const buttonAreas = [
+      { text: 'Yes', x: 285, y: 229, width: 60, height: 40 },
+      { text: 'No', x: 375, y: 229, width: 60, height: 40 }
+    ]; 
+    return buttonAreas.findIndex(button =>
+      x >= button.x &&
+      x <= button.x + button.width &&
+      y >= button.y &&
+      y <= button.y + button.height
+    );
+  }
+  
+  getPauseMenuHoveredButtonIndex(x, y) {
+    const buttonAreas = [
+      { text: 'Continue', x: 275, y: 179, width: 180, height: 50 },
+      { text: 'Sound On', x: 275, y: 239, width: 180, height: 50 },
+      { text: 'Exit', x: 275, y: 299, width: 180, height: 50 }
+    ];
+    return buttonAreas.findIndex(button =>
+      x >= button.x &&
+      x <= button.x + button.width &&
+      y >= button.y &&
+      y <= button.y + button.height
+    );
   }
 
   keyDownHandler(event) {
@@ -115,17 +172,21 @@ class Keyboard {
 
   addPauseMenuListeners() {
     if (isMobileDevice()) {
-      canvas.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });  // Touch-Listener für mobile Geräte
+      canvas.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });
     } else {
+      canvas.addEventListener('mousedown', this.handleMouseDown.bind(this)); // Mouse-Listener hinzufügen
       window.addEventListener('keydown', this.handleKeyDown);
+      canvas.addEventListener('mousemove', this.handleMouseMove.bind(this)); // Mousemove Listener hinzufügen
     }
   }
-
+  
   removePauseMenuListeners() {
     if (isMobileDevice()) {
       canvas.removeEventListener('touchstart', this.handleTouchStart.bind(this));
     } else {
+      canvas.removeEventListener('mousedown', this.handleMouseDown.bind(this)); // Mouse-Listener entfernen
       window.removeEventListener('keydown', this.handleKeyDown);
+      canvas.removeEventListener('mousemove', this.handleMouseMove.bind(this)); 
     }
   }
 
@@ -177,7 +238,7 @@ class Keyboard {
     if (clickedButton === 'Yes') {
       Gameinit();
     } else if (clickedButton === 'No') {
-      init();
+      this.caseExit();
     }
   }
 
@@ -313,5 +374,13 @@ class Keyboard {
     });
   }
 
-
+  setEndMenuButtons() {
+    this.endMenuButtons.forEach((text, index) => {
+      const buttonX = 285 + index * 30;
+      const buttonY = 229  // Die Positionen für das Endmenü anpassen
+      this.world.ctx.fillStyle = index === this.selectedButtonIndex ? 'red' : 'white';
+      this.world.ctx.textAlign = 'center';
+      this.world.ctx.fillText(text, buttonX, buttonY);
+    });
+  }
 }

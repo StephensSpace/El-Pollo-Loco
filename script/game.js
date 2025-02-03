@@ -19,6 +19,9 @@ function Gameinit() {
         if (world.pauseMenu) world.pauseMenu = null;
         deleteWorld();
     }
+    if(isMobileDevice()) {
+        document.getElementById('pauseImg').style.display = 'block';
+    }
     world = new World(canvas);
 }
 
@@ -33,28 +36,27 @@ function deleteStartScreen() {
 
 function deleteWorld() {
     if (world) {
-        // Setze alle inneren Objekte zurück
-        if (world.keyboard) {
-            world.keyboard = null;  // Setzt das Keyboard zurück
-        }
-        if (world.character) {
-            world.character = null;  // Setzt das Character-Objekt zurück
-        }
-        if (world.level) {
-            world.level = null;  // Setzt das Level zurück
-        }
-        if (world.sounds) {
-            world.sounds.stopSounds();  // Hier wird die Methode zum Stoppen aufgerufen
-            world.sounds = null;
-        }
-
+        setWorldToNull();
         level1 = null;
         setLevel();
-        // Setze das World-Objekt selbst zurück
         world = null;
-
-        // Lösche den Canvas
         clearCanvas();
+    }
+}
+
+function setWorldToNull() {
+    if (world.keyboard) {
+        world.keyboard = null;
+    }
+    if (world.character) {
+        world.character = null;
+    }
+    if (world.level) {
+        world.level = null;
+    }
+    if (world.sounds) {
+        world.sounds.stopSounds();
+        world.sounds = null;
     }
 }
 
@@ -63,14 +65,3 @@ function clearCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);  // Bildschirm löschen
 }
 
-function checkViewportRatio() {
-    const viewportElement = document.getElementById("viewport");
-
-    if (viewportElement) {
-        viewportElement.style.display = window.innerHeight > window.innerWidth ? "block" : "none";
-    }
-}
-
-checkViewportRatio();
-
-window.addEventListener("resize", checkViewportRatio);
