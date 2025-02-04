@@ -1,5 +1,11 @@
+/**
+ * Statusbar Klasse verwaltet die Darstellung der Statusanzeige für den Charakter.
+ * Sie zeigt Gesundheitsstatus, Salsa-Flaschenstatus und Münzenstand an und kann auch die Gesundheit des Endbosses anzeigen.
+ */
 class Statusbar extends DrawAbleObject {
     character;
+    
+    // Definiert die Bildpfade für die Gesundheitsanzeige.
     ImagesHealth = [
         'assets/7_statusbars/1_statusbar/2_statusbar_health/green/0.png',
         'assets/7_statusbars/1_statusbar/2_statusbar_health/green/20.png',
@@ -9,6 +15,7 @@ class Statusbar extends DrawAbleObject {
         'assets/7_statusbars/1_statusbar/2_statusbar_health/green/100.png'
     ]
 
+    // Definiert die Bildpfade für die Salsa-Flasche.
     ImagesSalsa = [
         'assets/7_statusbars/1_statusbar/3_statusbar_bottle/blue/0.png',
         'assets/7_statusbars/1_statusbar/3_statusbar_bottle/blue/20.png',
@@ -18,6 +25,7 @@ class Statusbar extends DrawAbleObject {
         'assets/7_statusbars/1_statusbar/3_statusbar_bottle/blue/100.png',
     ]
 
+    // Definiert die Bildpfade für die Münzenanzeige.
     ImagesCoins = [
         'assets/7_statusbars/1_statusbar/1_statusbar_coin/orange/0.png',
         'assets/7_statusbars/1_statusbar/1_statusbar_coin/orange/20.png',
@@ -27,6 +35,7 @@ class Statusbar extends DrawAbleObject {
         'assets/7_statusbars/1_statusbar/1_statusbar_coin/orange/100.png',
     ]
 
+    // Definiert die Bildpfade für die Endboss-Gesundheitsanzeige.
     ImagesBossHealth = [
         'assets/7_statusbars/2_statusbar_endboss/green/green0.png',
         'assets/7_statusbars/2_statusbar_endboss/green/green20.png',
@@ -36,8 +45,20 @@ class Statusbar extends DrawAbleObject {
         'assets/7_statusbars/2_statusbar_endboss/green/green100.png'
     ]
 
+    // Objekt, das die geladenen Bilder speichert.
     images = {};
 
+    /**
+     * Konstruktor für die Statusbar.
+     * Lädt die Bilder und initialisiert die Position sowie Größe der Statusbar.
+     * 
+     * @param {string} path Der Pfad zum Hauptbild der Statusbar.
+     * @param {number} posX Die x-Position der Statusbar.
+     * @param {number} posY Die y-Position der Statusbar.
+     * @param {number} width Die Breite der Statusbar.
+     * @param {number} height Die Höhe der Statusbar.
+     * @param {Object} character Der Charakter, dessen Status angezeigt werden soll.
+     */
     constructor(path, posX, posY, width, height, character) {
         super().loadImage(path);
         this.loadImages(this.ImagesHealth);
@@ -51,6 +72,9 @@ class Statusbar extends DrawAbleObject {
         this.character = character;
     }
 
+    /**
+     * Setzt das Gesundheitsbild basierend auf der aktuellen Energie des Charakters.
+     */
     setHealth() {
         if (this.character.energy >= 85) {
             this.img = this.images[this.ImagesHealth[5]]
@@ -67,6 +91,9 @@ class Statusbar extends DrawAbleObject {
         }
     }
 
+    /**
+     * Setzt das Salsa-Flaschenbild basierend auf der Anzahl der Salsa-Flaschen des Charakters.
+     */
     setSalsa() {
         if (this.character.bottleCounter >= 50) {
             this.img = this.images[this.ImagesSalsa[5]]
@@ -83,6 +110,9 @@ class Statusbar extends DrawAbleObject {
         }
     }
 
+    /**
+     * Setzt das Münzenbild basierend auf der Anzahl der gesammelten Münzen des Charakters.
+     */
     setCoin() {
         if (this.character.coinCounter >= 100) {
             this.img = this.images[this.ImagesCoins[5]]
@@ -99,6 +129,9 @@ class Statusbar extends DrawAbleObject {
         }
     }
 
+    /**
+     * Setzt das Endboss-Gesundheitsbild basierend auf der aktuellen Energie des Endbosses.
+     */
     setBossHealth() {
         if (this.character.world.level.endboss.energy >= 100) {
             this.img = this.images[this.ImagesBossHealth[5]]

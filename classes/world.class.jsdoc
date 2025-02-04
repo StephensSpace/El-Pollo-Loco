@@ -1,0 +1,259 @@
+/**
+ * @class World
+ * Repräsentiert die Welt des Spiels, inklusive aller Level-Objekte, Charaktere, Animationen und Kollisionsprüfungen.
+ */
+class World {
+    /**
+     * @property {Keyboard} keyboard - Das Keyboard-Objekt für die Eingabe.
+     * @property {CharacterPepe} character - Das Charakter-Objekt des Spielers.
+     * @property {Object} level - Das aktuelle Level.
+     * @property {HTMLCanvasElement} canvas - Das HTML-Canvas, auf dem das Spiel gerendert wird.
+     * @property {CanvasRenderingContext2D} ctx - Der 2D-Kontext des Canvas.
+     * @property {number} cameraX - Die Position der Kamera.
+     * @property {PauseMenu} pauseMenu - Das Pause-Menü des Spiels.
+     * @property {EndMenu} endMenu - Das End-Menü des Spiels.
+     * @property {Sounds} sounds - Das Sound-Objekt für die Wiedergabe von Geräuschen.
+     * @property {Statusbar} healthbar - Die Gesundheitsanzeige des Charakters.
+     * @property {Statusbar} salsabar - Die Salsa-Anzeige des Charakters.
+     * @property {Statusbar} coinbar - Die Münzen-Anzeige des Charakters.
+     * @property {Statusbar} ednbossBar - Die Anzeige des Endbosses.
+     * @property {number} selectedButtonIndex - Der Index des ausgewählten Buttons im Menü.
+     * @property {boolean} running - Gibt an, ob das Spiel läuft.
+     */
+    
+    /**
+     * Erzeugt ein neues World-Objekt.
+     * @param {HTMLCanvasElement} canvas - Das HTML-Canvas-Element für das Spiel.
+     */
+    constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.level = level1;
+        this.keyboard = new Keyboard(); 
+        this.keyboard.world = this;
+        this.character = new CharacterPepe(this.keyboard, this);
+        this.keyboard.world.character = this.character;
+        this.cameraDriveDone = false;
+        this.angerDone = false;
+        this.startHurtAnimation = false;
+        this.WonImage = new Statusbar('assets/9_intro_outro_screens/win/won_2.png',
+            2170, 0, 690, 450);
+        this.LostImage = new Statusbar('assets/9_intro_outro_screens/game_over/game over.png',
+            0, 0, 720, 480);
+        this.healthbar = new Statusbar('assets/7_statusbars/1_statusbar/2_statusbar_health/green/100.png',
+            100, 410, 160, 50, this.character);
+        this.salsabar = new Statusbar('assets/7_statusbars/1_statusbar/3_statusbar_bottle/blue/20.png',
+            280, 410, 160, 50, this.character);
+        this.coinbar = new Statusbar('assets/7_statusbars/1_statusbar/1_statusbar_coin/orange/0.png',
+            460, 410, 160, 50, this.character);
+        this.ednbossBar = new Statusbar('assets/7_statusbars/2_statusbar_endboss/green/green100.png',
+            210, 20, 300, 50, this.character);
+        this.selectedButtonIndex = 0;
+        this.draw();
+    }
+
+    /**
+     * Startet eine Animationssequenz für eine Flasche.
+     * @param {Bottle} bottle - Die Flasche, die animiert wird.
+     * @param {Array} animationArray - Das Array mit Animationsbildern.
+     * @param {function} onComplete - Die Funktion, die nach Abschluss der Animation aufgerufen wird.
+     */
+    startAnimationSequence(bottle, animationArray, onComplete) {
+        let frameCount = 0;
+        if (SoundOn) {
+            this.sounds.bottleBreaking.play();
+        }
+        this.runAnimationInterval(bottle, animationArray, frameCount, onComplete);
+    }
+
+    /**
+     * Führt das Animations-Interval für eine Flasche aus.
+     * @param {Bottle} bottle - Die Flasche, die animiert wird.
+     * @param {Array} animationArray - Das Array mit Animationsbildern.
+     * @param {number} frameCount - Die Anzahl der Frames, die bereits ausgeführt wurden.
+     * @param {function} onComplete - Die Funktion, die nach Abschluss der Animation aufgerufen wird.
+     */
+    runAnimationInterval(bottle, animationArray, frameCount, onComplete) {
+        const interval = setInterval(() => {
+            bottle.animate(animationArray);
+            frameCount++;
+            bottle.speed = 0.0002;
+            bottle.speedY = 0;
+            if (frameCount >= 6) {
+                clearInterval(interval);
+                onComplete();
+                this.cleanupAfterAnimation(bottle);
+            }
+        }, 20);
+    }
+
+    /**
+     * Führt eine Bereinigung nach der Animation durch.
+     * @param {Bottle} bottle - Die Flasche, für die die Bereinigung durchgeführt wird.
+     */
+    cleanupAfterAnimation(bottle) {
+        setTimeout(() => {
+            this.level.endboss.hurt = false;
+            this.character.Bottles = this.character.Bottles.filter(b => b !== bottle);
+        }, 500);
+    }
+
+    /**
+     * Überprüft Kollisionen von Flaschen mit Feinden und dem Endboss.
+     */
+    checkBottleCollision() {
+        this.character.Bottles.forEach(bottle => {
+            if (bottle.collisionDetected) return;
+            this.level.enemies.some(enemy => this.checkEnemyCollision(bottle, enemy));
+            this.checkEndbossCollision(bottle);
+            if (bottle.posY >= 360) bottle.collisionDetected = true;
+        });
+    }
+
+    /**
+     * Überprüft, ob eine Flasche mit einem Feind kollidiert.
+     * @param {Bottle} bottle - Die Flasche, die überprüft wird.
+     * @param {Enemy} enemy - Der Feind, mit dem die Flasche kollidieren könnte.
+     * @returns {boolean} - Gibt zurück, ob eine Kollision stattgefunden hat.
+     */
+    checkEnemyCollision(bottle, enemy) {
+        if (enemy.isColliding(bottle)) {
+            setTimeout(() => {
+                bottle.collisionDetected = true;
+                enemy.dead = true;
+                if (SoundOn) {
+                    this.sounds.chickenDead.play();
+                }
+            }, 50);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Überprüft, ob eine Flasche mit dem Endboss kollidiert.
+     * @param {Bottle} bottle - Die Flasche, die überprüft wird.
+     */
+    checkEndbossCollision(bottle) {
+        if (this.level.endboss.isColliding(bottle)) {
+            setTimeout(() => {
+                bottle.collisionDetected = true;
+                this.level.endboss.energy -= 3.6;
+                this.level.endboss.hurt = true;
+                if (this.level.endboss.energy <= 0) this.level.endboss.dead = true;
+            }, 100);
+        }
+    }
+
+    /**
+     * Überprüft Kollisionen von Münzen mit dem Charakter.
+     */
+    checkCoinCollision() {
+        this.level.coins.forEach(coin => {
+            if (this.character.isColliding(coin) && !coin.collisionDetected) {
+                coin.collisionDetected = true;
+                this.character.coinCounter += 5;
+                if (SoundOn) {
+                    this.sounds.coinSound.play();
+                }
+            }
+        });
+        this.level.coins = this.level.coins.filter(coin => !coin.collisionDetected);
+    }
+
+    /**
+     * Überprüft Kollisionen von Salsa mit dem Charakter.
+     */
+    checkSalsaCollision() {
+        this.level.salsa.forEach(salsa => {
+            if (this.character.isColliding(salsa) && !salsa.collisionDetected) {
+                salsa.collisionDetected = true;
+                this.character.bottleCounter += 10;
+                if (SoundOn) {
+                    this.sounds.bottle.play();
+                }
+            }
+        });
+        this.level.salsa = this.level.salsa.filter(salsa => !salsa.collisionDetected);
+    }
+
+    /**
+     * Überprüft, ob das Spiel pausiert ist und passt die Logik an.
+     */
+    checkPauseStatus() {
+        if (!this.keyboard.pause) {
+            this.GameNotPaused();
+        } else {
+            this.drawObjectsToWorld();
+        }
+    }
+
+    /**
+     * Führt alle Kollisionsprüfungen aus.
+     */
+    checkAllCollisions() {
+        this.checkBottle();
+        this.character.checkCollisionsEnemy();
+        this.character.checkCollisionsBlock();
+        this.checkCoinCollision();
+        this.checkSalsaCollision();
+    }
+
+    /**
+     * Zeichnet alle Objekte im Spiel.
+     */
+    draw() {
+        if (this.running && this.character) {
+            this.character.setCamera();
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.translate(this.cameraX, 0);
+            this.checkPauseStatus();
+            this.ctx.translate(-this.cameraX, 0);
+            let self = this;
+            requestAnimationFrame(function () {
+                self.draw();
+            });
+        }
+    }
+
+    /**
+     * Führt alle Animationen aus, die nicht mit Kollisionen zu tun haben.
+     */
+    chickenMovement() {
+        this.level.enemies.forEach(enemy => {
+            if (!enemy.dead) {
+                if (enemy instanceof Chicken || enemy instanceof Chic) {
+                    enemy.moveChicken();
+                    enemy.applyGravity();
+                    enemy.animate(enemy.imagesWalking);
+                }
+                if (enemy instanceof Bird) {
+                    enemy.moveChicken();
+                    enemy.animate(enemy.imagesWalking);
+                }
+            }
+        });
+    }
+
+    /**
+     * Zeichnet das Pause-Menü, wenn das Spiel pausiert ist.
+     */
+    addPauseMenu() {
+        this.addToMap(this.pauseMenu);
+        this.updateSoundBtnText();
+        this.pauseMenu.startBtn.draw(this.ctx);
+        this.pauseMenu.soundBtn.draw(this.ctx);
+        this.pauseMenu.controllsBtn.draw(this.ctx);
+        this.ctx.font = '28px Comic Sans MS';
+        this.ctx.fillStyle = 'white';
+        this.ctx.fillText('PAUSED', this.canvas.width / 2 - 70, this.canvas.height / 2 - 30);
+    }
+
+    /**
+     * Zeichnet das Spiel-Over-Bildschirm, wenn der Charakter verloren hat.
+     */
+    addLostImage() {
+        this.addToMap(this.LostImage);
+        this.LostImage.draw(this.ctx);
+    }
+}

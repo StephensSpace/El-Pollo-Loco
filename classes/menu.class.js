@@ -1,3 +1,7 @@
+/**
+ * Die `StartMenu`-Klasse repräsentiert das Startmenü des Spiels. 
+ * Sie erbt von der `DrawAbleObject`-Klasse und verwaltet die Anzeige von Buttons und das Navigieren im Menü.
+ */
 class StartMenu extends DrawAbleObject {
 
     startBtn = new MenuButton('assets/menu/startBtn.png', 275, 179, 180, 50);
@@ -11,6 +15,10 @@ class StartMenu extends DrawAbleObject {
     startscreen;
     controls = false;
 
+    /**
+     * Erzeugt eine neue Instanz des `StartMenu`-Objekts.
+     * @param {CanvasRenderingContext2D} ctx Der Kontext des Canvas, auf dem das Menü gezeichnet wird.
+     */
     constructor(ctx) {
         super().loadImage('assets/menu/menuBackground.png');
         this.ctx = ctx;
@@ -24,6 +32,9 @@ class StartMenu extends DrawAbleObject {
         this.addEventListeners();
     }
 
+    /**
+     * Zeichnet das Startmenü auf das Canvas.
+     */
     drawStartMenu() {
         const menuWidth = 250;
         const menuHeight = 300;
@@ -38,6 +49,12 @@ class StartMenu extends DrawAbleObject {
         this.drawNavigationBox();
     }
 
+    /**
+     * Zeichnet das Hauptmenü mit den Buttons und dem Titel.
+     * @param {number} menuX Die X-Position des Menüs.
+     * @param {number} menuY Die Y-Position des Menüs.
+     * @param {number} menuWidth Die Breite des Menüs.
+     */
     drawMainMenu(menuX, menuY, menuWidth) {
         this.startBtn.draw(this.ctx);
         this.soundBtn.draw(this.ctx);
@@ -52,6 +69,10 @@ class StartMenu extends DrawAbleObject {
         });
     }
 
+    /**
+     * Zeichnet das Steuerungsmenü mit den Tastenbelegungen.
+     * @param {number} menuY Die Y-Position des Menüs.
+     */
     drawControlsMenu(menuY) {
         this.drawTitleText('Controls', this.ctx.canvas.width / 2 - 5, menuY + 70, 30, 'gold');
         this.leftCursor.draw(this.ctx);
@@ -66,6 +87,9 @@ class StartMenu extends DrawAbleObject {
         this.drawControlText('Throw - Space', 360.5, 224, 'white');
     }
 
+    /**
+     * Zeichnet das Navigations-Info-Box auf dem Bildschirm.
+     */
     drawNavigationBox() {
         const boxX = 500;
         const boxY = 20;
@@ -78,6 +102,14 @@ class StartMenu extends DrawAbleObject {
         this.drawTitleText('F        -   Fullscreen', boxX + boxWidth / 2, boxY + 75, 20, 'gold');
     }
 
+    /**
+     * Zeichnet einen Text mit dem angegebenen Stil.
+     * @param {string} text Der Text, der angezeigt werden soll.
+     * @param {number} x Die X-Position des Textes.
+     * @param {number} y Die Y-Position des Textes.
+     * @param {number} fontSize Die Schriftgröße des Textes.
+     * @param {string} color Die Farbe des Textes.
+     */
     drawTitleText(text, x, y, fontSize, color) {
         this.ctx.font = `${fontSize}px Comic Sans MS`;
         this.ctx.fillStyle = color;
@@ -85,6 +117,13 @@ class StartMenu extends DrawAbleObject {
         this.ctx.fillText(text, x, y);
     }
 
+    /**
+     * Zeichnet Steuerungshinweise auf das Menü.
+     * @param {string} text Der Steuerungstext.
+     * @param {number} x Die X-Position des Textes.
+     * @param {number} y Die Y-Position des Textes.
+     * @param {string} [color='gold'] Die Farbe des Textes.
+     */
     drawControlText(text, x, y, color = 'gold') {
         this.ctx.font = '17px Comic Sans MS';
         this.ctx.fillStyle = color;
@@ -92,16 +131,22 @@ class StartMenu extends DrawAbleObject {
         this.ctx.fillText(text, x, y);
     }
 
+    /**
+     * Fügt Event-Listener für Maus und Tastatur hinzu, je nach Gerät.
+     */
     addEventListeners() {
         if (isMobileDevice()) {
-            canvas.addEventListener('touchstart', this.handleTouchStart);
+            canvas.addEventListener('touchstart', this.handleTouchStart, { passive: false });
         } else {
             window.addEventListener('keydown', this.handleKeyDown);
             canvas.addEventListener('mousedown', this.handleMouseClick);
             canvas.addEventListener('mousemove', this.handleMouseMove);
         }
     }
-    
+
+    /**
+     * Entfernt Event-Listener für Maus und Tastatur, je nach Gerät.
+     */
     removeEventListeners() {
         if (isMobileDevice()) {
             canvas.removeEventListener('touchstart', this.handleTouchStart);
@@ -112,11 +157,14 @@ class StartMenu extends DrawAbleObject {
         }
     }
 
+    /**
+     * Handhabt die Mausbewegung und hebt den überfahrenen Button hervor.
+     * @param {MouseEvent} e Das Mausereignis.
+     */
     handleMouseMove(e) {
         let hoveredButton = this.getClickedButton(e.clientX, e.clientY);
-        
+
         if (hoveredButton) {
-            // Vergleiche mit der tatsächlichen Instanz des Buttons
             if (hoveredButton === this.startBtn) {
                 this.selectedButtonIndex = 0;
             } else if (hoveredButton === this.soundBtn) {
@@ -126,26 +174,39 @@ class StartMenu extends DrawAbleObject {
             } else if (hoveredButton === this.backBtn) {
                 this.selectedButtonIndex = 3;
             }
-
         }
     }
 
+    /**
+     * Handhabt die Touch-Start-Ereignisse für mobile Geräte.
+     * @param {TouchEvent} e Das Touch-Ereignis.
+     */
     handleTouchStart(e) {
         e.preventDefault();
         let touch = e.touches ? e.touches[0] : e; // Falls Maus-Event, nehme direkt `e`
         let x = touch.clientX;
         let y = touch.clientY;
-    
+
         let clickedButton = this.getClickedButton(x, y);
         if (clickedButton) {
             this.handleButtonClick(clickedButton);
         }
     }
 
+    /**
+     * Handhabt den Mausklick und ruft die Touch-Start-Methode auf.
+     * @param {MouseEvent} e Das Mausereignis.
+     */
     handleMouseClick(e) {
         this.handleTouchStart(e);
     }
 
+    /**
+     * Bestimmt, welcher Button bei den angegebenen Koordinaten angeklickt wurde.
+     * @param {number} x Die X-Koordinate.
+     * @param {number} y Die Y-Koordinate.
+     * @returns {MenuButton|null} Der angeklickte Button oder `null`, wenn kein Button angeklickt wurde.
+     */
     getClickedButton(x, y) {
         const { adjustedX, adjustedY } = this.getAdjustedCoordinates(x, y);
         let buttons = [this.startBtn, this.soundBtn, this.controllsBtn, this.backBtn];
@@ -163,6 +224,13 @@ class StartMenu extends DrawAbleObject {
         } return null;
     }
 
+    /**
+     * Überprüft, ob die angegebenen Koordinaten innerhalb der Grenzen eines Buttons liegen.
+     * @param {number} adjustedX Die angepasste X-Koordinate.
+     * @param {number} adjustedY Die angepasste Y-Koordinate.
+     * @param {MenuButton} button Der Button, der überprüft werden soll.
+     * @returns {boolean} `true`, wenn die Koordinaten innerhalb des Buttons liegen, andernfalls `false`.
+     */
     adjustCalculationOne(adjustedX, adjustedY, button) {
         return (adjustedX >= button.posX &&
             adjustedX <= button.posX + button.width &&
@@ -170,6 +238,10 @@ class StartMenu extends DrawAbleObject {
             adjustedY <= button.posY + button.height)
     }
 
+    /**
+     * Handhabt die Tastenanschläge und navigiert im Menü.
+     * @param {KeyboardEvent} e Das Tastaturereignis.
+     */
     handleKeyDown(e) {
         if (e.key === 'ArrowUp') {
             this.selectedButtonIndex =
@@ -183,6 +255,12 @@ class StartMenu extends DrawAbleObject {
         }
     }
 
+    /**
+     * Berechnet die angepassten Koordinaten für das Canvas.
+     * @param {number} x Die X-Koordinate.
+     * @param {number} y Die Y-Koordinate.
+     * @returns {Object} Ein Objekt mit den angepassten X- und Y-Koordinaten.
+     */
     getAdjustedCoordinates(x, y) {
         const canvas = document.querySelector('canvas');
         const rect = canvas.getBoundingClientRect();
@@ -194,6 +272,10 @@ class StartMenu extends DrawAbleObject {
         };
     }
 
+    /**
+     * Handhabt den Klick auf einen Button und führt die entsprechende Aktion aus.
+     * @param {MenuButton} [button=null] Der angeklickte Button. Wenn `null`, wird der aktuell ausgewählte Button verwendet.
+     */
     handleButtonClick(button = null) {
         if (this.controls) {
             this.controls = false;
@@ -209,22 +291,41 @@ class StartMenu extends DrawAbleObject {
         }
     }
 
+    /**
+     * Startet das Spiel.
+     */
     caseStart() {
-        this.stop();
-        this.removeEventListeners();
-        Gameinit();
+        if (isMobileDevice() && (window.innerHeight < window.innerWidth)) {
+            this.stop();
+            this.removeEventListeners();
+            Gameinit();
+        } else if (isMobileDevice() && (window.innerHeight > window.innerWidth)) {
+            document.getElementById('overlay').style.display = 'block';
+        } else if (!isMobileDevice()) {
+            this.stop();
+            this.removeEventListeners();
+            Gameinit();
+        }
     }
 
+
+    /**
+    * Verwaltet das abschaltet des Sounds.
+    */
     caseSound() {
         this.toggleSound();
         this.updateSoundBtnText();
     }
+
 
     toggleSound() {
         SoundOn = !SoundOn; // Umschalten zwischen true und false
 
     }
 
+    /**
+     * Aktualisiert den Text des Sound-Buttons, abhängig von der aktuellen Lautstärke.
+     */
     updateSoundBtnText() {
         this.buttons[1] = SoundOn ? 'Sound On' : 'Sound Off';
     }

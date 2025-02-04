@@ -1,3 +1,7 @@
+/**
+ * Repräsentiert den Endboss im Spiel, der sich bewegt, angreift, verletzt wird und stirbt.
+ * Diese Klasse verwaltet die Animationen und das Verhalten des Endbosses.
+ */
 class Endboss extends MovableObject {
     endbossWalking = [
         'assets/4_enemie_boss_chicken/1_walk/G1.png',
@@ -50,7 +54,13 @@ class Endboss extends MovableObject {
     world;
     dead = false;
 
-
+    /**
+     * Erzeugt eine neue Instanz des Endbosses mit den angegebenen Parametern.
+     * @param {number} posX - Die Start-X-Position des Endbosses.
+     * @param {number} posY - Die Start-Y-Position des Endbosses.
+     * @param {number} width - Die Breite des Endbosses.
+     * @param {number} height - Die Höhe des Endbosses.
+     */
     constructor(posX = 2700, posY = 120, width = 350, height = 350) {
         super().loadImage(this.endbossWalking[0]);
         this.loadImages(this.endbossWalking);
@@ -80,30 +90,48 @@ class Endboss extends MovableObject {
 
     }
 
+     /**
+     * Bewegt den Endboss nach links.
+     * @returns {void}
+     */
     moveChicken() {
         this.posX -= 1;
     }
 
+     /**
+     * Führt die Bewegungslogik des Endbosses aus, einschließlich Position und Angriffsbereitschaft.
+     * @returns {void}
+     */
     endbossFight() {
         this.updateEndbossPosition();
     }
 
+    /**
+     * Animiert den Endboss durch Schleifen der Bilder in einem Array.
+     * @param {Array} array - Das Array der Animationsbilder.
+     * @param {number} property - Der Index des aktuellen Animationsbilds.
+     * @returns {number} Der aktualisierte Index des Animationsbilds.
+     */
     animateEndboss(array, property) {
         const currentTime = Date.now();
         if (currentTime - this.lastFrameTime >= this.frameInterval) {
-            let path = array[property]; // Direktes Zugreifen auf das Array mit dem Property
-            if (path) { // Sicherstellen, dass das Bild existiert
+            let path = array[property]; 
+            if (path) {
                 this.img = this.images[path];
-                property++; // Nur hochzählen, wenn das Bild existiert
+                property++;
             }
-            if (property >= array.length) { // Rücksetzen, wenn das Ende erreicht ist
+            if (property >= array.length) {
                 property = 0;
             }
             this.lastFrameTime = currentTime;
         }
-        return property; // Den neuen Wert von Property zurückgeben
+        return property; 
     }
 
+    /**
+     * Aktualisiert die Position des Endbosses basierend auf dessen Zustand.
+     * @returns {void}
+     */
     updateEndbossPosition() {
         if (this.dead) {
             this.handleDeadEndboss();
@@ -114,6 +142,10 @@ class Endboss extends MovableObject {
         }
     }
     
+    /**
+     * Handhabt den Zustand, wenn der Endboss tot ist.
+     * @returns {void}
+     */
     handleDeadEndboss() {
         if (!this.deadAnimationDone) {
             this.playDeadAnimation();
@@ -121,6 +153,10 @@ class Endboss extends MovableObject {
         }
     }
     
+    /**
+     * Spielt die Animationssequenz für den toten Endboss ab.
+     * @returns {void}
+     */
     playDeadAnimation() {
         this.currentImageAttack = this.animateEndboss(this.endbossDead, this.currentImageAttack);
         if (SoundOn) {
@@ -128,6 +164,10 @@ class Endboss extends MovableObject {
         }
     }
     
+    /**
+     * Startet die Timeouts für die Animation des toten Endbosses und die anschließende Übergabe des Sieges.
+     * @returns {void}
+     */
     startDeadAnimationTimeouts() {
         if (!this.deadAnimationStarted) {
             setTimeout(() => {
@@ -135,12 +175,17 @@ class Endboss extends MovableObject {
             }, 2000);
             setTimeout(() => {
                 this.Won = true;
+                this.world.keyboard.won = true;
                 this.world.keyboard.toggleListeners();
             }, 6000);
             this.deadAnimationStarted = true;
         }
     }
     
+    /**
+     * Handhabt die Bewegung des Endbosses nach links.
+     * @returns {void}
+     */
     handleMovingLeft() {
         if (this.walking) {
             this.moveLeftAndAnimate();
@@ -150,6 +195,10 @@ class Endboss extends MovableObject {
         }
     }
     
+    /**
+     * Bewegt den Endboss nach links und animiert die entsprechende Bewegung.
+     * @returns {void}
+     */
     moveLeftAndAnimate() {
         this.posX -= this.speedLeft;
         if (!this.hurt) {
@@ -162,6 +211,10 @@ class Endboss extends MovableObject {
         }
     }
     
+    /**
+     * Bereitet den Angriff des Endbosses vor, indem die Bewegung gestoppt und die Angriff-Animation abgespielt wird.
+     * @returns {void}
+     */
     prepareAttack() {
         this.walking = false;
         this.currentImageAttack = this.animateEndboss(this.endbossAttack, this.currentImageAttack);
@@ -176,6 +229,10 @@ class Endboss extends MovableObject {
         this.speedLeft = this.calculateRandomSpeed();
     }
     
+    /**
+     * Handhabt die Bewegung des Endbosses nach rechts, wenn er auf der rechten Seite des Spiels ist.
+     * @returns {void}
+     */
     handleMovingRight() {
         this.walking = true;
         if (!this.hurt) {
@@ -189,6 +246,10 @@ class Endboss extends MovableObject {
         }
     }
     
+    /**
+     * Setzt die Angriffs- und Bewegungszustände des Endbosses zurück.
+     * @returns {void}
+     */
     resetAttackState() {
         this.attackStarted = false;
         this.attackDone = false;
@@ -196,10 +257,20 @@ class Endboss extends MovableObject {
         this.movingLeft = true;
     }
 
+    /**
+     * Gibt eine zufällige Y-Position innerhalb des angegebenen Bereichs zurück.
+     * @param {number} min - Der minimale Wert für die Y-Position.
+     * @param {number} max - Der maximale Wert für die Y-Position.
+     * @returns {number} Eine zufällige Y-Position.
+     */
     getRandomTargetY(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
+    /**
+     * Berechnet eine zufällige Geschwindigkeit für die Bewegung des Endbosses.
+     * @returns {number} Eine zufällige Geschwindigkeit im Bereich von 1.0 bis 3.0.
+     */
     calculateRandomSpeed() {
         return Math.random() * (3.0 - 1.0) + 1.0;
     }

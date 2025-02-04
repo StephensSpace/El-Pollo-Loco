@@ -1,3 +1,10 @@
+/**
+ * Repräsentiert eine geworfene Flasche im Spiel.
+ * Die Flasche fliegt mit einer Rotation und kann später in eine Pfütze landen.
+ * 
+ * @extends MovableObject
+ */
+
 class BottleThrown extends MovableObject {
     bottleFlying = [
         'assets/6_salsa_bottle/bottle_rotation/1_bottle_rotation.png',
@@ -46,7 +53,13 @@ class BottleThrown extends MovableObject {
         this.collisionDetected = collisionDetected;
     }
 
-    bottleFly() {
+     /**
+     * Bewegt die Flasche nach links oder rechts basierend auf der Richtung.
+     * 
+     * @description Diese Methode sorgt für die Bewegung der Flasche im Spiel und verändert
+     *              ihre horizontale Position basierend auf der Richtung (rechts oder links).
+     */
+     bottleFly() {
         if (this.directionRight) {
             this.posX += this.speed;  // Bewegung nach rechts
         } else {

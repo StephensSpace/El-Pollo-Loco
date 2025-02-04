@@ -1,4 +1,15 @@
+/**
+ * Klasse, die den Charakter Pepe im Spiel darstellt und von `MovableObject` erbt.
+ * Diese Klasse verwaltet die verschiedenen Zustände und Bewegungen von Pepe,
+ * wie das Gehen, Springen, Stehen, und das Überprüfen von Kollisionen mit Feinden und Objekten.
+ * Sie enthält auch Logik für den Umgang mit den Lebenspunkten des Charakters und seinen Interaktionen
+ * mit der Welt.
+ */
 class CharacterPepe extends MovableObject {
+    /**
+     * Bilder für den Idle-Zustand des Charakters (Stehen).
+     * @type {string[]}
+     */
     imagesIdle = [
         'assets/2_character_pepe/1_idle/idle/I-1.png',
         'assets/2_character_pepe/1_idle/idle/I-2.png',
@@ -6,8 +17,12 @@ class CharacterPepe extends MovableObject {
         'assets/2_character_pepe/1_idle/idle/I-4.png',
         'assets/2_character_pepe/1_idle/idle/I-5.png',
         'assets/2_character_pepe/1_idle/idle/I-6.png'
-    ]
+    ];
 
+    /**
+     * Bilder für den Geh-Zustand des Charakters.
+     * @type {string[]}
+     */
     imagesWalk = [
         'assets/2_character_pepe/2_walk/W-21.png',
         'assets/2_character_pepe/2_walk/W-22.png',
@@ -15,8 +30,12 @@ class CharacterPepe extends MovableObject {
         'assets/2_character_pepe/2_walk/W-24.png',
         'assets/2_character_pepe/2_walk/W-25.png',
         'assets/2_character_pepe/2_walk/W-26.png'
-    ]
+    ];
 
+    /**
+     * Bilder für den Sprung-Zustand des Charakters.
+     * @type {string[]}
+     */
     imagesJump = [
         'assets/2_character_pepe/3_jump/J-31.png',
         'assets/2_character_pepe/3_jump/J-32.png',
@@ -26,9 +45,13 @@ class CharacterPepe extends MovableObject {
         'assets/2_character_pepe/3_jump/J-36.png',
         'assets/2_character_pepe/3_jump/J-37.png',
         'assets/2_character_pepe/3_jump/J-38.png',
-        'assets/2_character_pepe/3_jump/J-39.png',
+        'assets/2_character_pepe/3_jump/J-39.png'
     ];
 
+    /**
+     * Bilder für den Tod des Charakters.
+     * @type {string[]}
+     */
     imagesDeath = [
         'assets/2_character_pepe/5_dead/D-51.png',
         'assets/2_character_pepe/5_dead/D-52.png',
@@ -36,15 +59,23 @@ class CharacterPepe extends MovableObject {
         'assets/2_character_pepe/5_dead/D-54.png',
         'assets/2_character_pepe/5_dead/D-55.png',
         'assets/2_character_pepe/5_dead/D-56.png',
-        'assets/2_character_pepe/5_dead/D-57.png',
-    ]
+        'assets/2_character_pepe/5_dead/D-57.png'
+    ];
 
+    /**
+     * Bilder für den Schmerz-Zustand des Charakters.
+     * @type {string[]}
+     */
     imagesHurt = [
         'assets/2_character_pepe/4_hurt/H-41.png',
         'assets/2_character_pepe/4_hurt/H-42.png',
-        'assets/2_character_pepe/4_hurt/H-43.png',
-    ]
+        'assets/2_character_pepe/4_hurt/H-43.png'
+    ];
 
+    /**
+     * Bilder für den langen Idle-Zustand des Charakters.
+     * @type {string[]}
+     */
     imagesLongIdle = [
         'assets/2_character_pepe/1_idle/long_idle/I-11.png',
         'assets/2_character_pepe/1_idle/long_idle/I-12.png',
@@ -56,49 +87,11 @@ class CharacterPepe extends MovableObject {
         'assets/2_character_pepe/1_idle/long_idle/I-18.png',
         'assets/2_character_pepe/1_idle/long_idle/I-19.png',
         'assets/2_character_pepe/1_idle/long_idle/I-20.png'
-    ]
+    ];
 
-    soundWalking = new Audio('audio/pepeRunning.wav')
-    images = {};
-    world;
-    inAir = false;
-    speed = 3;
-    posY = 200;
-    lastFrameTime = 0;
-    frameInterval = 100;
-    alive = true;
-    firstThrow = true;
-    fall = false;
-    lastThrowTime = 0;
-    coinCounter = 0;
-    bottleCounter = 10;
-    Bottles = []
-    currentImageWalk = 0;
-    currentImageIdle = 0;
-    currentImageJump = 0;
-    currentImageDeath = 0;
-    currentImageHurt = 0;
-    currentImageLongIdle = 0;
-
-    constructor(keyboard, world) {
-        super().loadImage('assets/2_character_pepe/1_idle/idle/I-1.png');
-        this.loadImages(this.imagesIdle);
-        this.loadImages(this.imagesWalk);
-        this.loadImages(this.imagesJump);
-        this.loadImages(this.imagesDeath);
-        this.loadImages(this.imagesHurt);
-        this.loadImages(this.imagesLongIdle);
-        this.Lost = false;
-        this.world = world;
-        this.posX = 20;
-        this.offsetY = 110;
-        this.offsetX = 57;
-        this.offsetLength = 120;
-        this.offsetHeight = 122;
-        this.keyboard = keyboard
-        this.timeoutStarted = false;
-    }
-
+     /**
+     * Überprüft die X-Position des Charakters und steuert die Bewegungen.
+     */
     checkCharacterPosX() {
         if (!(this.posX >= 2070) && !this.world.cameraDriveDone) {
             this.characterMovements();
@@ -110,6 +103,9 @@ class CharacterPepe extends MovableObject {
         }
     }
 
+    /**
+     * Führt die Bewegungen des Charakters aus, basierend auf den Eingaben und Zuständen.
+     */
     characterMovements() {
         if (!this.world.level.endboss.dead) {
             this.startThrow();
@@ -120,6 +116,9 @@ class CharacterPepe extends MovableObject {
         this.animateJump();
     }
 
+    /**
+     * Überprüft Kollisionen des Charakters mit Blöcken (z.B. Felsen) im Spiel.
+     */
     checkCollisionsBlock() {
         this.world.level.rocks.forEach(rock => {
             this.isCollidingBlock(rock);
@@ -134,13 +133,16 @@ class CharacterPepe extends MovableObject {
         });
     }
 
+    /**
+     * Überprüft Kollisionen des Charakters mit Feinden.
+     */
     checkCollisionsEnemy() {
         let collisionDetected = false;
         this.world.level.enemies.forEach(enemy => {
             if (this.posY < 200 && this.fall) {
                 if (this.isCollidingTop(enemy) && this.energy > 0 && !enemy.dead && enemy instanceof Chicken) {
                     enemy.dead = true;
-                } else if (this.isColliding(enemy) && this.energy > 0 && !enemy.dead){
+                } else if (this.isColliding(enemy) && this.energy > 0 && !enemy.dead) {
                     collisionDetected = true;
                     this.handleEnemyCollision();
                 }
@@ -158,8 +160,9 @@ class CharacterPepe extends MovableObject {
         }
     }
 
-
-
+    /**
+     * Behandelt Kollisionen mit Feinden, reduziert Energie und spielt einen Sound ab.
+     */
     handleEnemyCollision() {
         this.hurt = true;
         this.energy -= 0.2;
@@ -171,6 +174,9 @@ class CharacterPepe extends MovableObject {
         }
     }
 
+    /**
+     * Behandelt Kollisionen mit dem Endboss, reduziert Energie und spielt einen Sound ab.
+     */
     handleEndbossCollision() {
         this.hurt = true;
         if (this.energy >= 0 && !this.world.level.endboss.dead) {
@@ -184,11 +190,17 @@ class CharacterPepe extends MovableObject {
         }
     }
 
+    /**
+     * Behandelt den Fall, dass keine Kollisionen erkannt wurden.
+     */
     handleNoCollision() {
         this.hurt = false;
         this.world.sounds.OuchSound.pause();
     }
 
+    /**
+     * Animiert den Charakter im Idle-Zustand (Standby).
+     */
     animateIdle() {
         if (this.alive && !this.hurt && !this.fall) {
             if (!this.keyboard.rechts && !this.keyboard.links && !this.keyboard.jump) {
@@ -208,6 +220,9 @@ class CharacterPepe extends MovableObject {
         }
     }
 
+    /**
+     * Setzt einen Timer für den Long-Idle-Zustand des Charakters.
+     */
     setIdleTimer() {
         if (!this.longIdleTimeoutStarted) {
             this.longIdleTimeoutStarted = true;
@@ -218,6 +233,9 @@ class CharacterPepe extends MovableObject {
         }
     }
 
+    /**
+     * Löscht den Long-Idle-Timer, wenn der Charakter sich bewegt.
+     */
     clearIdleTimer() {
         if (this.longIdleTimeoutStarted) {
             clearTimeout(this.longIdleTimer);
@@ -226,12 +244,22 @@ class CharacterPepe extends MovableObject {
         }
     }
 
+    /**
+     * Animiert den Charakter, wenn er verletzt wurde.
+     */
     animateHurt() {
         if (this.hurt && this.alive) {
             this.currentImageHurt = this.animatePepe(this.imagesHurt, this.currentImageHurt);
         }
     }
 
+    /**
+     * Animiert den Charakter basierend auf einem gegebenen Bildarray.
+     * 
+     * @param {Array} array - Das Array der Bildpfade für die Animation.
+     * @param {number} imageCounter - Der Zähler für das aktuelle Bild.
+     * @returns {number} Der aktualisierte Zähler für das Bild.
+     */
     animatePepe(array, imageCounter) {
         const currentTime = Date.now();
         if (currentTime - this.lastFrameTime >= this.frameInterval) {
@@ -248,6 +276,9 @@ class CharacterPepe extends MovableObject {
         return imageCounter;
     }
 
+    /**
+     * Überprüft, ob der Charakter gestorben ist (Energie <= 0).
+     */
     checkDeath() {
         if (this.energy <= 0 && this.alive) {
             this.currentImageDeath = this.animatePepe(this.imagesDeath, this.currentImageDeath);
@@ -261,7 +292,7 @@ class CharacterPepe extends MovableObject {
                     this.alive = false;
                     setTimeout(() => {
                         this.Lost = true;
-                        this.world.keyboard.lost = true
+                        this.world.keyboard.lost = true;
                         this.world.keyboard.toggleListeners();
                     }, 1500);
                 }, 2000);
@@ -269,6 +300,9 @@ class CharacterPepe extends MovableObject {
         }
     }
 
+    /**
+     * Animiert die Bewegung des Charakters (Gehen, Springen).
+     */
     animateMovement() {
         if (!this.fall) {
             this.speedY = 0;
@@ -289,6 +323,11 @@ class CharacterPepe extends MovableObject {
         }
     }
 
+    /**
+     * Bestimmt, ob der Charakter springen sollte.
+     * 
+     * @returns {boolean} - Ob der Charakter springen sollte.
+     */
     shouldJump() {
         const jumpingCondition = this.keyboard.jump && !this.fall;
         const blockCondition = this.collisionY && this.keyboard.jump && this.fallOnBlock && this.speedY === 0;
@@ -297,6 +336,9 @@ class CharacterPepe extends MovableObject {
         return jumpingCondition || blockCondition || endBossCondition;
     }
 
+    /**
+     * Startet den Wurf einer Flasche, wenn der Charakter dies tun kann.
+     */
     startThrow() {
         const currentTime = Date.now();
         if (this.canThrowBottle(currentTime)) {
@@ -314,6 +356,12 @@ class CharacterPepe extends MovableObject {
         }
     }
 
+    /**
+     * Bestimmt, ob der Charakter eine Flasche werfen kann.
+     * 
+     * @param {number} currentTime - Der aktuelle Zeitstempel.
+     * @returns {boolean} - Ob der Charakter eine Flasche werfen kann.
+     */
     canThrowBottle(currentTime) {
         return this.keyboard.throw &&
             (currentTime - this.lastThrowTime >= 1000) &&
@@ -321,6 +369,11 @@ class CharacterPepe extends MovableObject {
             this.bottleCounter > 0;
     }
 
+    /**
+     * Behandelt die Bewegung des Charakters.
+     * 
+     * @param {Function} funct - Die Funktion zur Ausführung der Bewegung.
+     */
     handleWalk(funct) {
         funct;
         if (!this.hurt && !this.fall) {
@@ -332,6 +385,9 @@ class CharacterPepe extends MovableObject {
         }
     }
 
+    /**
+     * Animiert den Sprung des Charakters.
+     */
     animateJump() {
         const currentTime = Date.now();
         if (((this.keyboard.jump || this.fall) && !this.collisionY && this.alive) || this.world.level.endboss.dead) {
@@ -342,6 +398,9 @@ class CharacterPepe extends MovableObject {
         }
     }
 
+    /**
+     * Bewegt den Charakter nach rechts.
+     */
     walkRight() {
         this.otherDirection = false;
         const newPosition = this.posX += this.speed;
@@ -352,54 +411,18 @@ class CharacterPepe extends MovableObject {
         }
     }
 
+    /**
+     * Bewegt den Charakter nach links.
+     */
     walkLeft() {
         this.otherDirection = true;
         const newPosition = this.posX -= this.speed;
         if (newPosition <= -10) {
             this.posX = - 10;
-        } else if (this.world.cameraDriveDone && (newPosition <= 2121)) {
-            this.posX = 2121;
-        }
-        else {
+        } else if (this.world.cameraDriveDone && (newPosition <= 2070)) {
+            this.posX = 2070;
+        } else {
             this.posX = newPosition;
         }
-    }
-
-    cameraX(versatz) {
-        const newCameraX = -this.posX + versatz;
-        if (newCameraX > 0) {
-            this.world.cameraX = undefined;
-        } else if (newCameraX <= -2157) {
-            this.world.cameraX = -2157;
-        } else if (newCameraX <= -1775) {
-            this.cameraDrive();
-        } else {
-            this.world.cameraX = newCameraX;
-        }
-
-    }
-
-    setCamera() {
-        if (this.posX >= 295) {
-            this.cameraX(295);
-        }
-    }
-
-    cameraDrive() {
-        const smoothScroll = setInterval(() => {
-            if (this.world.cameraX > -2157 && !this.world.cameraDriveDone) {
-                this.world.cameraX -= 0.1;
-            } else if (!this.world.cameraDriveDone) {
-                this.world.cameraX = -2157;
-                this.posX = 2150;
-                this.posY = 200;
-                this.world.cameraDriveDone = true;
-                clearInterval(smoothScroll);  // Stoppe das Bewegungstimer
-            }
-        }, 50);  // Geschwindigkeit der Bewegung
-    }
-
-    jump() {
-        this.speedY = 5.8;
     }
 }
