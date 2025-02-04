@@ -1,3 +1,6 @@
+/**Klasse für den enemyTyp Chics
+// */
+
 class Chic extends MovableObject {
     imagesWalking = [
         'assets/3_enemies_chicken/chicken_small/1_walk/1_w.png',
@@ -16,6 +19,9 @@ class Chic extends MovableObject {
     speed = 0.4;
     offsetHeight = 10;
 
+    //** Konstruktor für die Chics Klasse, 
+    // hier wird auch checkDeath gestartet (aus MovableObjects) 
+    // um zu überprüfen ob das Chicken noch lebt */
     constructor(posX = 200 + Math.random() * 500, posY = 380, width = 40, height = 40) {
         super().loadImage('assets/3_enemies_chicken/chicken_small/1_walk/1_w.png')
         this.loadImages(this.imagesWalking);

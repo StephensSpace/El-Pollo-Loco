@@ -1,5 +1,9 @@
-class Bird extends MovableObject {
+//** Klasse für den gegnertypen Vogel
+//  */
 
+class Bird extends MovableObject {
+    //**
+    // Array für die animation der bwegung des Vogels */
     imagesWalking = [
         'assets/11_bird/frame_1.png',
         'assets/11_bird/frame_2.png',
@@ -8,6 +12,7 @@ class Bird extends MovableObject {
         'assets/11_bird/frame_5.png',
         'assets/11_bird/frame_6.png',
     ]
+
     images = {};
     lastFrameTime = 0;
     frameInterval = 200;
@@ -20,7 +25,8 @@ class Bird extends MovableObject {
     deadAnimationDone = false;
     otherDirection ;
 
-
+//** Konstruktor für die Bird Klasse hier wird überprüft (checkDeath()) ob der Vogel noch lebt
+//  */
     constructor( posX, posY, width = 80, height = 80) {
         super().loadImage('assets/11_bird/frame_1.png')
         this.loadImages(this.imagesWalking);

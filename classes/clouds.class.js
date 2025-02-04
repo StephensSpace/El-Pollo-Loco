@@ -1,3 +1,5 @@
+//**Klasse für das Hintergrundobjekt Clouds
+//  */
 class Clouds extends MovableObject {
 
     constructor(speed = 0.2, posX = 0, posY = 0, width = 360, height = 280, path = 'assets/5_background/layers/4_clouds/1.png') {
@@ -9,7 +11,8 @@ class Clouds extends MovableObject {
         this.height = height;
         this.speed = speed
     }
-
+//**Funktion die die bewegung der clouds regelt
+//  */
     moveClouds() {
         this.posX -= this.speed;
 

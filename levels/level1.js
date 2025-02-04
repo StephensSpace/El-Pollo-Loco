@@ -1,8 +1,13 @@
 let level1;
-
+//** Dise Funktion "lädt" die Arrays als
+//  properytys ins Level so das diese 
+// dann gezeichnet werden können */
 function setLevel() {
-
+//**Variable für das erste Level
+//  */
     level1 = new Level(
+        //**Array für Hintergrundobjekte
+        //  */
         [
             new Air(),
             new Background('assets/5_background/layers/3_third_layer/1.png', 0),
@@ -30,6 +35,10 @@ function setLevel() {
             new Background('assets/5_background/layers/1_first_layer/1.png', 719 * 4),
 
         ],
+        //**Array clouds für die Hintergrundwolken
+        //  mit Daten wie speed positionen und pfaden 
+        // zu den pictures 
+        // */
         [
             { speed: 0.3, x: 0, y: undefined, width: undefined, height: undefined, src: undefined },
             { speed: undefined, x: 360, y: -10, src: 'assets/5_background/layers/4_clouds/2.png' },
@@ -38,6 +47,8 @@ function setLevel() {
             { speed: undefined, x: 800, y: 40 },
             { speed: undefined, x: 720, y: 0, src: 'assets/5_background/layers/4_clouds/2.png' },
         ],
+        //**Enemy Arrays mit den Gegnern im Spiel 
+        // und deren Positionen */
         [
             new Chicken(670),
             new Chicken(490),
@@ -63,7 +74,11 @@ function setLevel() {
             new Flame(788, 355)
         ],
         2756, //level Endposition auf der x Achse
+        //**Endboss des Levels
+        //  */
         new Endboss(),
+        //**Coin array mit positionen
+        //  */
         [
             new Coins(200, -10),
             new Coins(300, -10),
@@ -88,9 +103,9 @@ function setLevel() {
             new Coins(525, 280),
             new Coins(575, 280),
             new Coins(625, 280),
-
-
         ],
+        //** salsaBottle Array mit positionen
+        //  */
         [
             new Salsa('assets/6_salsa_bottle/1_salsa_bottle_on_ground.png', 570, 330),
             new Salsa('assets/6_salsa_bottle/1_salsa_bottle_on_ground.png', 1050, 330),
@@ -101,6 +116,8 @@ function setLevel() {
             new Salsa('assets/6_salsa_bottle/1_salsa_bottle_on_ground.png', 2070, 25),
 
         ],
+        //** statisches Object Rock array 
+        // mit positionen auf der Map */
         [
             new Rocks('assets/10_rocks/Rock2.png', 50, 5),
             new Rocks('assets/10_rocks/Rock1shadow.png', 180, 360),

@@ -1,3 +1,7 @@
+//**Klasse für das Objekt SalsaBottle, das von pepe 
+// eingesammelt werden kann
+//  */
+
 class Salsa extends MovableObject {
     salsaImages = [
         'assets/6_salsa_bottle/1_salsa_bottle_on_ground.png',
@@ -10,6 +14,9 @@ class Salsa extends MovableObject {
     frameInterval = 1000;
     collisionDetected = false;
 
+    //**Constructor der klasse Salsa indem 
+    // das Bild und die Bilder für die Animation 
+    // geladen wird/werden */
     constructor(path, posX, posY = 90, width = 90, height = 90) {
         super().loadImage(path);
         this.loadImages(this.salsaImages);

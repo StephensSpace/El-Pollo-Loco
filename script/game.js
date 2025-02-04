@@ -16,6 +16,7 @@ function init() {
     }
     canvas = document.getElementById('canvas');
     startScreen = new Startscreen(canvas);
+    handleScreenOrientation();
 }
 
 /**
@@ -36,6 +37,7 @@ function startGame() {
     }
     canvas = document.getElementById('canvas');
     world = new World(canvas);
+    handleScreenOrientation();
     setTimeout(() => {
         world.sounds.startSounds();
     }, 1000);

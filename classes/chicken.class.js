@@ -1,3 +1,5 @@
+//**Klasse für den enemyTyp Chicken
+// */
 class Chicken extends MovableObject {
     imagesWalking = [
         'assets/3_enemies_chicken/chicken_normal/1_walk/1_w.png',
@@ -15,7 +17,9 @@ class Chicken extends MovableObject {
     speed = 0.4;
     deadAnimationDone = false;
 
-
+    //** Konstruktor für die Chicken Klasse, 
+    // hier wird auch checkDeath gestartet (aus MovableObjects) 
+    // um zu überprüfen ob das Chicken noch lebt */
     constructor( posX = 200 + Math.random() * 500, posY = 335, width = 80, height = 80) {
         super().loadImage('assets/3_enemies_chicken/chicken_normal/1_walk/1_w.png')
         this.loadImages(this.imagesWalking);

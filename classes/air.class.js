@@ -1,3 +1,5 @@
+//**Klasse Air für Himmel hintergrundbilder
+//  */
 class Air extends MovableObject {
 
     constructor(posX = 0, posY = -60, width = 720, height = 480) {

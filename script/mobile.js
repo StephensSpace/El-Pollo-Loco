@@ -33,7 +33,7 @@ function toggleFullscreen() {
  * Andernfalls wird das Element ausgeblendet.
  * @function checkViewportRatio
  */
-function checkViewportRatio() {
+function updateViewportDisplay() {
     const viewportElement = document.getElementById("viewport");
 
     if (viewportElement && isMobileDevice()) {
@@ -42,11 +42,42 @@ function checkViewportRatio() {
     }
 }
 
-// Initialer Check des Viewport-Verhältnisses
-checkViewportRatio();
+function handleScreenOrientation() {
+    if (startScreen) { 
+        return; 
+    } else if (isMobileDevice()) {
+        const isPortrait = window.innerHeight > window.innerWidth;
+        if (isPortrait && world.running) {
+            world.keyboard.pause = true;
+            world.keyboard.isPortrait = true;
+            document.getElementById('overlay').style.display = 'block';
+            world.keyboard.toggleListeners();
+        }
+        else {
+            world.keyboard.isPortrait = false; 
+            document.getElementById('overlay').style.display = 'none';
+        }
+    }
+}
 
-// Event-Listener für Resize-Event
-window.addEventListener("resize", checkViewportRatio);
+// Prüft, ob world existiert, bevor handleScreenOrientation() ausgeführt wird
+const checkWorldInterval = setInterval(() => {
+    if (typeof world !== 'undefined') {
+        handleScreenOrientation();
+        clearInterval(checkWorldInterval); // Sobald world existiert, stoppen
+    }
+}, 100); // Alle 100ms prüfen
 
+
+// Event-Listener
+window.addEventListener("resize", () => {
+    updateViewportDisplay();
+    handleScreenOrientation();
+});
+
+window.addEventListener("orientationchange", handleScreenOrientation);
+
+// Initiale Checks
+updateViewportDisplay();
 // Event-Listener für den Klick auf den Vollbild-Button
 document.getElementById('fullscreen').addEventListener('click', toggleFullscreen);

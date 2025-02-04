@@ -34,6 +34,7 @@ class Keyboard {
     this.lost = false;
     this.won = false;
     this.pause = false;
+    this.isPortrait = false;
     this.addIngameListener();
   }
 
@@ -359,9 +360,13 @@ class Keyboard {
  * Resumes the game and removes pause menu listeners.
  */
   caseContinue() {
+    if(!this.isPortrait) {
     this.pause = false;
     this.removePauseMenuListeners();
     this.addIngameListener();
+    } else {
+      document.getElementById('overlay').style.display = 'block';
+    }
   }
 
   /**

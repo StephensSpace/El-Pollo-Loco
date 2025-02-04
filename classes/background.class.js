@@ -1,3 +1,6 @@
+//**Klasse für die Hintergrundbilder des levels
+// */
+
 class Background extends MovableObject {
 
     constructor(path, posX = 0, posY = 0, width = 720, height = 480) {
