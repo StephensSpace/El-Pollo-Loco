@@ -90,7 +90,7 @@ class CharacterPepe extends MovableObject {
         this.loadImages(this.imagesLongIdle);
         this.Lost = false;
         this.world = world;
-        this.posX = 2000;
+        this.posX = 20;
         this.offsetY = 110;
         this.offsetX = 57;
         this.offsetLength = 120;
