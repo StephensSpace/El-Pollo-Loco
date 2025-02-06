@@ -158,10 +158,10 @@ class Endboss extends MovableObject {
      * @returns {void}
      */
     playDeadAnimation() {
-        this.currentImageAttack = this.animateEndboss(this.endbossDead, this.currentImageAttack);
         if (SoundOn) {
             this.world.sounds.endbossDead.play();
         }
+        this.currentImageAttack = this.animateEndboss(this.endbossDead, this.currentImageAttack);
     }
     
     /**

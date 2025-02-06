@@ -7,7 +7,6 @@ class World {
     cameraX;
     pauseMenu = new PauseMenu();
     endMenu = new EndMenu();
-    sounds = new Sounds();
     healthbar;
     salsabar;
     selectedButtonIndex = 0;
@@ -17,7 +16,9 @@ class World {
     constructor(canvas) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
+        this.sounds = new Sounds();
         this.level = level1;
+        this.level.endboss.world = this;
         this.keyboard = new Keyboard(); 
         this.keyboard.world = this;
         this.character = new CharacterPepe(this.keyboard, this);
@@ -97,7 +98,10 @@ class World {
         if (this.level.endboss.isColliding(bottle)) {
             setTimeout(() => {
                 bottle.collisionDetected = true;
-                this.level.endboss.energy -= 3.6;
+                if(!bottle.hit) {
+                    this.level.endboss.energy -= 20;
+                }
+                bottle.hit = true;          
                 this.level.endboss.hurt = true;
                 if (this.level.endboss.energy <= 0) this.level.endboss.dead = true;
             }, 100);

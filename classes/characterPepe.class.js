@@ -90,7 +90,7 @@ class CharacterPepe extends MovableObject {
         this.loadImages(this.imagesLongIdle);
         this.Lost = false;
         this.world = world;
-        this.posX = 20;
+        this.posX = 2000;
         this.offsetY = 110;
         this.offsetX = 57;
         this.offsetLength = 120;
@@ -140,7 +140,7 @@ class CharacterPepe extends MovableObject {
             if (this.posY < 200 && this.fall) {
                 if (this.isCollidingTop(enemy) && this.energy > 0 && !enemy.dead && enemy instanceof Chicken) {
                     enemy.dead = true;
-                } else if (this.isColliding(enemy) && this.energy > 0 && !enemy.dead){
+                } else if (this.isColliding(enemy) && this.energy > 0 && !enemy.dead) {
                     collisionDetected = true;
                     this.handleEnemyCollision();
                 }
@@ -171,12 +171,12 @@ class CharacterPepe extends MovableObject {
         }
     }
 
-    handleEndbossCollision() {
-        this.hurt = true;
+    handleEndbossCollision() {     
+            this.hurt = true;
         if (this.energy >= 0 && !this.world.level.endboss.dead) {
             this.energy -= 0.4;
         }
-        if (this.energy >= 5) {
+        if (this.energy >= 5 && !this.world.level.endboss.dead) {
             this.animateHurt();
             if (SoundOn) {
                 this.world.sounds.OuchSound.play();
